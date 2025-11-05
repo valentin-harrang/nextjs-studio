@@ -1,0 +1,1 @@
+export const AI_MODEL = "qwen/qwen3-32b";

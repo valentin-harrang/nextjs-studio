@@ -1,0 +1,184 @@
+---
+description: Testing strategy and patterns
+globs:
+  - tests/**
+alwaysApply: false
+---
+
+# Testing Rules
+
+## Test Pyramid
+
+```
+       /\
+      /e2e\         (Few, slow, realistic)
+     /------\
+    /integ. \       (Some, medium, services+infra)
+   /----------\
+  /   unit     \    (Many, fast, business logic)
+ /--------------\
+```
+
+## Unit Tests (tests/unit/)
+
+**Purpose:** Test business logic in isolation
+
+```typescript
+// tests/unit/domain/users/business-rules/validate-role.test.ts
+import { describe, it, expect } from 'vitest';
+import { canEditProfile } from '@/domain/users/business-rules/validate-role';
+
+describe('canEditProfile', () => {
+  it('should allow admin to edit any profile', () => {
+    const admin = { id: '1', role: 'ADMIN', email: 'admin@test.com' };
+    expect(canEditProfile(admin, '2')).toBe(true);
+  });
+
+  it('should allow user to edit own profile', () => {
+    const user = { id: '1', role: 'USER', email: 'user@test.com' };
+    expect(canEditProfile(user, '1')).toBe(true);
+  });
+
+  it('should not allow user to edit other profile', () => {
+    const user = { id: '1', role: 'USER', email: 'user@test.com' };
+    expect(canEditProfile(user, '2')).toBe(false);
+  });
+});
+```
+
+**Rules:**
+- ✅ Test pure business logic
+- ✅ No external dependencies
+- ✅ Fast (< 1ms per test)
+- ✅ Many tests (aim for 90%+ coverage on domain)
+
+## Integration Tests (tests/integration/)
+
+**Purpose:** Test services with real adapters
+
+```typescript
+// tests/integration/domain/users/services/create-user.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import { createUser } from '@/domain/users/services/create-user';
+import { PrismaUserRepository } from '@/infra/adapters/user-repository.prisma';
+import { testPrisma } from '@/tests/setup';
+
+describe('createUser service', () => {
+  let userRepo: PrismaUserRepository;
+
+  beforeEach(async () => {
+    await testPrisma.user.deleteMany();
+    userRepo = new PrismaUserRepository(testPrisma);
+  });
+
+  it('should create a user', async () => {
+    const input = { email: 'test@example.com', name: 'Test' };
+    const user = await createUser(input, userRepo);
+    
+    expect(user.id).toBeDefined();
+    expect(user.email).toBe('test@example.com');
+  });
+
+  it('should throw if user already exists', async () => {
+    const input = { email: 'test@example.com', name: 'Test' };
+    await createUser(input, userRepo);
+    
+    await expect(createUser(input, userRepo))
+      .rejects
+      .toThrow('User already exists');
+  });
+});
+```
+
+**Rules:**
+- ✅ Test complete flows
+- ✅ Use test database
+- ✅ Clean up after each test
+- ✅ Medium speed (< 100ms per test)
+
+## E2E Tests (tests/e2e/)
+
+**Purpose:** Test complete user journeys
+
+```typescript
+// tests/e2e/auth.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('user can sign up and login', async ({ page }) => {
+  // Navigate to signup
+  await page.goto('/signup');
+  
+  // Fill form
+  await page.fill('input[name="email"]', 'user@example.com');
+  await page.fill('input[name="password"]', 'password123');
+  await page.click('button[type="submit"]');
+  
+  // Should redirect to dashboard
+  await expect(page).toHaveURL('/dashboard');
+  await expect(page.locator('h1')).toContainText('Welcome');
+});
+```
+
+**Rules:**
+- ✅ Test critical paths only
+- ✅ Full application stack
+- ✅ Realistic scenarios
+- ✅ Few tests (slow, ~1s+ per test)
+
+## Testing Philosophy
+
+1. **Test behavior, not implementation**
+   ```typescript
+   // ✅ Good - Test behavior
+   expect(canEditProfile(user, targetId)).toBe(true);
+   
+   // ❌ Bad - Test implementation
+   expect(user.id).toBe(targetId);
+   ```
+
+2. **AAA Pattern**
+   ```typescript
+   it('should do something', () => {
+     // Arrange
+     const user = { id: '1', role: 'USER' };
+     
+     // Act
+     const result = doSomething(user);
+     
+     // Assert
+     expect(result).toBe(expected);
+   });
+   ```
+
+3. **Test edge cases**
+   - Empty inputs
+   - Null/undefined
+   - Boundary values
+   - Error scenarios
+
+## Coverage Goals
+
+- **Domain layer:** 90%+ (critical)
+- **Services:** 80%+
+- **Adapters:** 70%+ (integration tests)
+- **Route Handlers:** E2E tests
+- **Components:** 60%+ (behavior)
+
+## Running Tests
+
+```bash
+# All tests
+npm test
+
+# Unit only
+npm run test:unit
+
+# Integration only
+npm run test:integration
+
+# E2E only
+npm run test:e2e
+
+# Coverage
+npm run test:coverage
+```

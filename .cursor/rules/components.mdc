@@ -1,0 +1,236 @@
+---
+description: Rules for React components (Server and Client)
+globs:
+  - src/components/**
+alwaysApply: false
+---
+
+# Components Layer Rules
+
+## Structure
+
+```
+components/
+├── ui/            # Design system (button.tsx, input.tsx, card.tsx)
+├── shared/        # Reusable components (page-header.tsx, page-container.tsx)
+└── domain/        # Domain-specific UI (user-card.tsx, product-form.tsx)
+```
+
+**All component files use kebab-case:**
+- ✅ `button.tsx`, `input.tsx`, `card.tsx` (UI)
+- ✅ `page-header.tsx`, `page-container.tsx` (Shared)
+- ✅ `user-card.tsx`, `product-form.tsx` (Domain)
+
+## Server Components (Default)
+
+```typescript
+// components/domain/user-list.tsx (kebab-case file)
+import { getUsers } from '@/domain/users/services/get-users';
+import { userRepository } from '@/infra/adapters/user-repository';
+
+// ✅ No 'use client' = Server Component
+export async function UserList() {
+  // ✅ Can fetch data directly
+  const users = await getUsers(userRepository);
+  
+  return (
+    <div>
+      {users.map(user => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </div>
+  );
+}
+```
+
+**Rules:**
+- ✅ Fetch data on server
+- ✅ Use domain types
+- ✅ No interactivity
+- ✅ Better performance
+
+## Client Components (Interactivity)
+
+```typescript
+// components/domain/user-form.tsx (kebab-case file)
+'use client'; // ✅ Required for interactivity
+
+import { useState } from 'react';
+import type { CreateUserInput } from '@/domain/users/models/user';
+
+export function UserForm({ onSubmit }: Props) {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({ email, name });
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        value={email} 
+        onChange={e => setEmail(e.target.value)} 
+      />
+      <input 
+        value={name} 
+        onChange={e => setName(e.target.value)} 
+      />
+      <button type="submit">Create</button>
+    </form>
+  );
+}
+```
+
+**Rules:**
+- ✅ Add 'use client' directive
+- ✅ Use for forms, modals, interactive UI
+- ✅ Use domain types for props
+- ❌ Don't fetch data directly (use Server Components)
+
+## Design System (ui/)
+
+```typescript
+// components/ui/button.tsx (kebab-case file)
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+export function Button({ 
+  variant = 'primary', 
+  size = 'md',
+  children,
+  ...props 
+}: ButtonProps) {
+  return (
+    <button 
+      className={`btn btn-${variant} btn-${size}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+**Rules:**
+- ✅ Generic, reusable
+- ✅ No business logic
+- ✅ Well-typed props
+- ✅ Consistent API
+
+## Domain Components (domain/)
+
+```typescript
+// components/domain/product-card.tsx (kebab-case file)
+import type { Product } from '@/domain/products/models/product';
+import { isAvailable } from '@/domain/products/business-rules/check-availability';
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const available = isAvailable(product);
+  
+  return (
+    <div className="product-card">
+      <h3>{product.name}</h3>
+      <p>{product.price}€</p>
+      <p className={available ? 'text-green' : 'text-red'}>
+        {available ? 'In Stock' : 'Out of Stock'}
+      </p>
+    </div>
+  );
+}
+```
+
+**Rules:**
+- ✅ Use domain types
+- ✅ Can use business rules
+- ✅ Domain-specific logic OK
+- ✅ Compose with ui/ components
+
+## Critical Rules
+
+1. **Server by default, Client when needed**
+   - Use Server Components unless you need interactivity
+   
+2. **Type everything with domain types**
+   ```typescript
+   import type { User } from '@/domain/users/models/user';
+   
+   interface UserCardProps {
+     user: User; // ✅ Use domain type
+   }
+   ```
+
+3. **Compose, don't duplicate**
+   ```typescript
+   // ✅ Good - Compose
+   <Button variant="primary" onClick={handleClick}>
+     Save
+   </Button>
+   
+   // ❌ Bad - Duplicate
+   <button className="custom-button">Save</button>
+   ```
+
+4. **Keep components small**
+   - One component = one responsibility
+   - Extract sub-components when > 100 lines
+
+5. **NO Barrel Exports (index.ts)**
+   ```typescript
+   // ❌ Bad - Barrel export (index.ts)
+   export { Button } from "./Button";
+   export { Input } from "./Input";
+   
+   // ❌ Bad - Importing from barrel
+   import { Button, Input } from "@/components/ui";
+   
+   // ✅ Good - Direct imports (kebab-case paths)
+   import { Button } from "@/components/ui/button";
+   import { Input } from "@/components/ui/input";
+   ```
+   
+   **Why**: Barrel exports hurt performance, break tree-shaking, and can cause circular dependencies.
+
+6. **NO Default Exports (except Next.js pages)**
+   ```typescript
+   // ❌ Bad - Default export
+   export default function Button({ children }: Props) {
+     return <button>{children}</button>;
+   }
+   
+   // ✅ Good - Named export
+   export function Button({ children }: Props) {
+     return <button>{children}</button>;
+   }
+   ```
+   
+   **Exception**: Next.js pages (`page.tsx`, `layout.tsx`, `route.ts`, etc.) MUST use default export.
+   
+   **Why**: Better refactoring, no naming conflicts, better tree-shaking, consistency.
+
+7. **ALWAYS Use cn() for className (NO template literals)**
+   ```typescript
+   // ❌ Bad - Template literal concatenation
+   className={`${baseClass} ${variant} ${condition ? "active" : ""}`}
+   
+   // ✅ Good - Use cn() utility
+   import { cn } from "@/app/lib/utils";
+   
+   className={cn(
+     baseClass,
+     variant,
+     condition && "active",
+     className // Allow override from props
+   )}
+   ```
+   
+   **Why**: Properly merges Tailwind classes, handles conflicts, removes duplicates, handles undefined/null gracefully.

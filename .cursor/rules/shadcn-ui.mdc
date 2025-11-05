@@ -1,0 +1,424 @@
+---
+description: ShadCn UI component guidelines
+globs:
+  - "**/components/ui/**"
+alwaysApply: false
+---
+
+# ShadCn UI Components
+
+## What is ShadCn UI?
+
+ShadCn UI is **NOT an npm package**. It's a collection of **re-usable components** that you can copy and paste into your apps.
+
+**Key Characteristics:**
+- ✅ **Copy-paste components** - You own the code
+- ✅ **Based on Radix UI** - Unstyled, accessible primitives
+- ✅ **Styled with Tailwind CSS** - Utility-first CSS
+- ✅ **Customizable** - Modify to fit your needs
+- ✅ **Accessible** - ARIA compliant, keyboard navigation
+- ✅ **Type-safe** - Full TypeScript support
+
+**Official website:** [ui.shadcn.com](https://ui.shadcn.com/)
+
+## Components Location
+
+All ShadCn UI components live in `app/components/ui/`:
+
+```
+app/components/ui/
+├── button.tsx      # Button component (kebab-case)
+├── input.tsx       # Input component (kebab-case)
+├── card.tsx        # Card component (kebab-case)
+├── dialog.tsx      # Dialog/Modal component (kebab-case)
+├── select.tsx      # Select dropdown (kebab-case)
+└── ...             # Other ShadCn components
+```
+
+**Important:** ShadCn CLI automatically names files in **kebab-case** (`button.tsx`, not `Button.tsx`). This is the official ShadCn convention and **cannot be changed** via `components.json`.
+
+**Exception to naming convention:** Files in `app/components/ui/` use **kebab-case** (ShadCn standard), but exports remain **PascalCase**:
+
+```typescript
+// ✅ File: button.tsx (kebab-case)
+export function Button() { } // Export: PascalCase
+
+// Import
+import { Button } from "@/app/components/ui/button"; // lowercase file
+```
+
+## Component Guidelines
+
+### 1. Export Convention
+
+**All ShadCn components MUST use named exports:**
+
+```typescript
+// ✅ Good - Named export
+export function Button({ className, variant, ...props }: ButtonProps) {
+  return (
+    <button className={cn(buttonVariants({ variant, className }))} {...props} />
+  );
+}
+
+// ❌ Bad - Default export
+export default function Button({ className, variant, ...props }: ButtonProps) {
+  return (
+    <button className={cn(buttonVariants({ variant, className }))} {...props} />
+  );
+}
+```
+
+### 2. Props Pattern
+
+Extend native HTML element props:
+
+```typescript
+// ✅ Good - Extend HTML props
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+}
+
+export function Button({ className, variant, size, ...props }: ButtonProps) {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  );
+}
+```
+
+### 3. Style Variants with CVA
+
+Use `class-variance-authority` for variants:
+
+```typescript
+import { cva, type VariantProps } from "class-variance-authority";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
+  {
+    variants: {
+      variant: {
+        default: "bg-blue-600 text-white hover:bg-blue-700",
+        destructive: "bg-red-600 text-white hover:bg-red-700",
+        outline: "border border-gray-300 hover:bg-gray-100",
+        secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300",
+        ghost: "hover:bg-gray-100",
+        link: "text-blue-600 underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3",
+        lg: "h-11 px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+```
+
+### 4. cn() Utility - **MANDATORY**
+
+**❌ NEVER use template literals for className concatenation.**
+
+Always use the `cn()` utility to merge classes:
+
+```typescript
+// ❌ BAD - Template literal concatenation
+className={`${maxWidthClasses[maxWidth]} ${
+  centered ? "mx-auto text-center" : "mx-auto"
+} p-6`}
+
+// ✅ GOOD - Use cn() utility
+import { cn } from "@/app/lib/utils";
+
+className={cn(
+  maxWidthClasses[maxWidth],
+  "mx-auto",
+  centered && "text-center",
+  "p-6"
+)}
+```
+
+**Why cn() is mandatory:**
+- ✅ Merges Tailwind classes correctly
+- ✅ Handles conflicts (e.g., `bg-blue-600` + `bg-red-600` = `bg-red-600`)
+- ✅ Removes duplicates automatically
+- ✅ Handles conditional classes (`condition && "class"`)
+- ✅ Handles `undefined`/`null` values gracefully
+- ✅ Type-safe with TypeScript
+
+**Pattern for conditional classes:**
+```typescript
+// ✅ Good - Conditional classes with cn()
+className={cn(
+  "base-class",
+  condition && "conditional-class",
+  anotherCondition && "another-class",
+  className // Allow override from props
+)}
+
+// ❌ Bad - Template literal with ternary
+className={`base-class ${condition ? "conditional-class" : ""}`}
+```
+
+### 5. Use `size-*` instead of `w-* h-*` (Tailwind Optimization)
+
+**❌ NEVER use `w-* h-*` when both width and height are the same.**
+
+Always use `size-*` utility class when width and height are equal:
+
+```typescript
+// ❌ BAD - Separate width and height
+<Brain className="w-5 h-5 text-blue-500" />
+<Loader2 className="w-8 h-8 animate-spin" />
+<div className="w-10 h-10 rounded-full" />
+
+// ✅ GOOD - Use size-* utility
+<Brain className="size-5 text-blue-500" />
+<Loader2 className="size-8 animate-spin" />
+<div className="size-10 rounded-full" />
+```
+
+**Why use `size-*`:**
+- ✅ More concise and readable
+- ✅ Less code (1 class instead of 2)
+- ✅ Clearer intent (square/circular elements)
+- ✅ Tailwind CSS optimization
+
+**When to use:**
+- ✅ Icons (same width and height)
+- ✅ Avatar images (circular/square)
+- ✅ Buttons with icon size
+- ✅ Loading spinners
+- ✅ Any element where `width === height`
+
+**When NOT to use:**
+- ❌ Different width and height: `w-5 h-10` (keep as is)
+- ❌ Responsive sizing: `w-full h-auto` (keep as is)
+
+## Usage Examples
+
+### Button Component
+
+```typescript
+// Note: File is button.tsx (kebab-case), but import is lowercase
+import { Button } from "@/app/components/ui/button";
+
+function Example() {
+  return (
+    <div>
+      <Button variant="default">Default</Button>
+      <Button variant="destructive">Delete</Button>
+      <Button variant="outline">Cancel</Button>
+      <Button variant="ghost" size="sm">Ghost</Button>
+      
+      {/* Custom className */}
+      <Button className="w-full">Full Width</Button>
+    </div>
+  );
+}
+```
+
+### Input Component
+
+```typescript
+import { Input } from "@/app/components/ui/input";
+
+function Example() {
+  return (
+    <div>
+      <Input type="email" placeholder="Email" />
+      <Input type="password" placeholder="Password" />
+      
+      {/* Disabled */}
+      <Input disabled placeholder="Disabled" />
+      
+      {/* Custom className */}
+      <Input className="border-red-500" />
+    </div>
+  );
+}
+```
+
+### Card Component
+
+```typescript
+import { Card } from "@/app/components/ui/card";
+
+function Example() {
+  return (
+    <Card>
+      <h2>Card Title</h2>
+      <p>Card content goes here...</p>
+    </Card>
+  );
+}
+```
+
+## Customization
+
+### Modifying Existing Components
+
+Since you own the code, you can freely modify:
+
+```typescript
+// app/components/ui/Button.tsx
+
+// Add a new variant
+const buttonVariants = cva(
+  "...",
+  {
+    variants: {
+      variant: {
+        default: "...",
+        destructive: "...",
+        // ✅ Add custom variant
+        success: "bg-green-600 text-white hover:bg-green-700",
+      },
+    },
+  }
+);
+
+// Use it
+<Button variant="success">Save</Button>
+```
+
+### Adding New Props
+
+```typescript
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "destructive" | "success";
+  size?: "default" | "sm" | "lg";
+  // ✅ Add custom prop
+  loading?: boolean;
+}
+
+export function Button({ 
+  loading, 
+  children, 
+  disabled,
+  ...props 
+}: ButtonProps) {
+  return (
+    <button disabled={disabled || loading} {...props}>
+      {loading ? <Spinner /> : children}
+    </button>
+  );
+}
+```
+
+## Common Components
+
+| Component | Purpose | Example |
+|-----------|---------|---------|
+| Button | Buttons with variants | `<Button variant="default">Click</Button>` |
+| Input | Form inputs | `<Input type="email" />` |
+| Card | Content containers | `<Card>Content</Card>` |
+| Dialog | Modals/Dialogs | `<Dialog>...</Dialog>` |
+| Select | Dropdowns | `<Select>...</Select>` |
+| Badge | Labels/Tags | `<Badge>New</Badge>` |
+| Alert | Notifications | `<Alert>Message</Alert>` |
+| Checkbox | Checkboxes | `<Checkbox />` |
+| Switch | Toggle switches | `<Switch />` |
+
+## Best Practices
+
+### ✅ Do
+
+```typescript
+// Use named exports
+export function Button() { }
+
+// Extend HTML props
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
+
+// Use cn() utility
+<button className={cn(baseStyles, className)} />
+
+// Use variants for different styles
+const variants = cva("base-styles", { variants: { ... } });
+
+// Accept className for customization
+export function Button({ className, ...props }: ButtonProps)
+```
+
+### ❌ Don't
+
+```typescript
+// Don't use default export
+export default function Button() { }
+
+// Don't hardcode styles without variants
+<button className="bg-blue-600 text-white" />
+
+// Don't ignore className prop
+export function Button(props: ButtonProps) {
+  return <button className="fixed-styles" />; // ❌
+}
+
+// Don't add business logic
+export function Button() {
+  const user = useUser(); // ❌ Business logic
+  const data = await fetchData(); // ❌ API call
+}
+```
+
+## Resources
+
+- **Official Docs**: [ui.shadcn.com/docs](https://ui.shadcn.com/docs)
+- **Components**: [ui.shadcn.com/docs/components](https://ui.shadcn.com/docs/components)
+- **Radix UI**: [radix-ui.com](https://www.radix-ui.com/)
+- **CVA**: [cva.style](https://cva.style/)
+- **Tailwind CSS**: [tailwindcss.com](https://tailwindcss.com/)
+
+## File Naming Convention
+
+**ALL component files use kebab-case:**
+
+```
+✅ All component files (kebab-case):
+- button.tsx              (ShadCn UI)
+- input.tsx               (ShadCn UI)
+- card.tsx                (ShadCn UI)
+- page-container.tsx      (Shared)
+- chat-form.tsx           (Domain)
+- message-list.tsx        (Domain)
+- page-header.tsx         (Shared)
+```
+
+**Why kebab-case?**
+- ✅ Consistency across the entire codebase
+- ✅ Matches ShadCn CLI convention (ShadCn generates kebab-case files)
+- ✅ Better for tooling and file systems
+- ✅ Clear distinction between files (kebab-case) and exports (PascalCase)
+
+**Imports:**
+```typescript
+// All components - kebab-case path
+import { Button } from "@/app/components/ui/button";
+import { PageContainer } from "@/app/components/shared/page-container";
+import { ChatForm } from "@/app/components/domain/chat/chat-form";
+```
+
+## Summary
+
+**Golden Rules:**
+1. ✅ Named exports only (`export function Button`)
+2. ✅ ALL component files use kebab-case (consistent across codebase)
+3. ✅ Use `cn()` utility for className merging (NO template literals)
+4. ✅ Use `size-*` instead of `w-* h-*` when width === height
+5. ✅ Extend HTML element props
+6. ✅ Use CVA for variants
+7. ✅ Accept `className` prop for customization
+8. ❌ NO default exports (except Next.js pages)
+9. ❌ NO business logic in UI components
+10. ❌ NO API calls
+11. ✅ You own the code - customize freely

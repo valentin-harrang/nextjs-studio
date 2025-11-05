@@ -1,0 +1,123 @@
+---
+description: Rules specific to domain layer (business logic)
+globs:
+  - src/domain/**
+alwaysApply: false
+---
+
+# Domain Layer Rules
+
+## Critical Constraints
+
+**ABSOLUTELY FORBIDDEN in domain layer:**
+- ❌ `import { ... } from 'next/...'`
+- ❌ `import { ... } from 'react'`
+- ❌ `import { PrismaClient } from '@prisma/client'`
+- ❌ Direct `fetch()` calls
+- ❌ Any framework-specific code
+- ❌ TypeScript `any` type (use `unknown` instead)
+
+## What MUST be here
+
+### 1. Models (Zod schemas)
+
+```typescript
+// domain/[feature]/models/[entity].ts
+import { z } from 'zod';
+
+export const UserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  role: z.enum(['USER', 'ADMIN']),
+});
+
+export type User = z.infer<typeof UserSchema>;
+
+export const CreateUserSchema = UserSchema.omit({ id: true });
+export type CreateUserInput = z.infer<typeof CreateUserSchema>;
+```
+
+### 2. Business Rules (Pure Functions)
+
+```typescript
+// domain/[feature]/business-rules/*.ts
+export function canEditProfile(user: User, targetId: string): boolean {
+  return user.role === 'ADMIN' || user.id === targetId;
+}
+```
+
+**Rules:**
+- ✅ Pure functions (no side effects)
+- ✅ Deterministic (same input = same output)
+- ✅ No external dependencies
+- ✅ Easy to test
+
+### 3. Ports (Interfaces)
+
+```typescript
+// domain/[feature]/ports/*-repository.ts
+export interface IUserRepository {
+  findById(id: string): Promise<User | null>;
+  save(user: CreateUserInput): Promise<User>;
+  delete(id: string): Promise<void>;
+}
+```
+
+**Rules:**
+- ✅ Prefix with 'I' (IUserRepository)
+- ✅ Define contract only
+- ✅ Implementation in infra layer
+
+### 4. Services (Use Cases)
+
+```typescript
+// domain/[feature]/services/*.ts
+export async function createUser(
+  input: CreateUserInput,
+  userRepo: IUserRepository
+): Promise<User> {
+  // 1. Validate
+  const validated = CreateUserSchema.parse(input);
+  
+  // 2. Business rules
+  const existing = await userRepo.findByEmail(validated.email);
+  if (existing) throw new Error('User already exists');
+  
+  // 3. Save via port
+  return await userRepo.save(validated);
+}
+```
+
+**Rules:**
+- ✅ Orchestrate business logic
+- ✅ Use dependency injection (ports as parameters)
+- ✅ Validate with Zod
+- ✅ Return domain types
+
+## Folder Structure per Feature
+
+```
+domain/[feature]/
+├── models/              # Entities, Zod schemas
+├── business-rules/      # Pure business logic
+├── behavior-rules/      # Workflows
+├── data-integration/    # Mappers
+├── services/            # Use cases
+└── ports/               # Interfaces
+```
+
+## Testing
+
+Domain layer should have highest test coverage (aim for 90%+).
+
+```typescript
+// tests/unit/domain/[feature]/business-rules/*.test.ts
+import { describe, it, expect } from 'vitest';
+
+describe('canEditProfile', () => {
+  it('should allow admin to edit any profile', () => {
+    const admin = { id: '1', role: 'ADMIN' };
+    expect(canEditProfile(admin, '2')).toBe(true);
+  });
+});
+```

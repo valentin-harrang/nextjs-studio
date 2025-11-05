@@ -1,0 +1,172 @@
+---
+description: Rules for Next.js API Route Handlers
+globs:
+  - src/app/api/**
+alwaysApply: false
+---
+
+# API Route Handlers Rules
+
+## Purpose
+
+Minimal HTTP controllers that:
+1. Parse requests
+2. Call domain services
+3. Return responses
+4. Handle errors
+
+## Route Handler Pattern
+
+```typescript
+// app/api/users/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/domain/users/services/get-user';
+import { userRepository } from '@/infra/adapters/user-repository';
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getUser(params.id, userRepository);
+    return NextResponse.json(user);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Critical Rules
+
+### ❌ NO Business Logic in Route Handlers
+
+```typescript
+// ❌ BAD - Business logic in route handler
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  
+  // ❌ Business logic here
+  if (body.email.includes('@admin')) {
+    body.role = 'ADMIN';
+  }
+  
+  const user = await prisma.user.create({ data: body });
+  return NextResponse.json(user);
+}
+
+// ✅ GOOD - Delegate to service
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const user = await createUser(body, userRepository);
+  return NextResponse.json(user);
+}
+```
+
+### ❌ NO Direct Database Calls
+
+```typescript
+// ❌ BAD
+export async function GET() {
+  const users = await prisma.user.findMany();
+  return NextResponse.json(users);
+}
+
+// ✅ GOOD
+export async function GET() {
+  const users = await getUsers(userRepository);
+  return NextResponse.json(users);
+}
+```
+
+## Standard Structure
+
+```typescript
+export async function GET/POST/PUT/DELETE(req: NextRequest) {
+  try {
+    // 1. Parse request
+    const params = extractParams(req);
+    
+    // 2. Call service with repository
+    const result = await serviceFunction(params, repository);
+    
+    // 3. Return response
+    return NextResponse.json(result, { status: 200/201 });
+    
+  } catch (error) {
+    // 4. Handle errors
+    return handleError(error);
+  }
+}
+```
+
+## Error Handling
+
+```typescript
+function handleError(error: unknown): NextResponse {
+  if (error instanceof NotFoundError) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 404 }
+    );
+  }
+  
+  if (error instanceof ValidationError) {
+    return NextResponse.json(
+      { error: error.message, fields: error.fields },
+      { status: 400 }
+    );
+  }
+  
+  // Log unexpected errors
+  console.error('Unexpected error:', error);
+  
+  return NextResponse.json(
+    { error: 'Internal server error' },
+    { status: 500 }
+  );
+}
+```
+
+## Dependency Injection
+
+```typescript
+// Initialize repositories once
+const userRepository = new PrismaUserRepository(prisma);
+const emailProvider = new ResendEmailProvider(env.RESEND_API_KEY);
+
+// Pass to services
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const user = await createUser(body, userRepository, emailProvider);
+  return NextResponse.json(user, { status: 201 });
+}
+```
+
+## Testing
+
+Mock services, not infrastructure:
+
+```typescript
+// tests/e2e/api/users.test.ts
+describe('POST /api/users', () => {
+  it('should create user', async () => {
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({ email: 'test@example.com' }),
+    });
+    
+    expect(response.status).toBe(201);
+    const user = await response.json();
+    expect(user.email).toBe('test@example.com');
+  });
+});
+```

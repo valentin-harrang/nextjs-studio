@@ -1,0 +1,159 @@
+---
+description: Template for creating repository adapters
+globs:
+alwaysApply: false
+---
+
+# Repository Adapter Template
+
+Use this template when creating a repository adapter.
+
+## Port (Interface) - in domain layer
+
+```typescript
+// domain/[feature]/ports/[entity]-repository.ts
+import type { [Entity], Create[Entity]Input, Update[Entity]Input } from '../models/[entity]';
+
+/**
+ * [Entity] Repository Interface (Port)
+ */
+export interface I[Entity]Repository {
+  findById(id: string): Promise<[Entity] | null>;
+  findAll(): Promise<[Entity][]>;
+  save(input: Create[Entity]Input): Promise<[Entity]>;
+  update(id: string, input: Update[Entity]Input): Promise<[Entity]>;
+  delete(id: string): Promise<void>;
+}
+```
+
+## Adapter (Implementation) - in infra layer
+
+```typescript
+// infra/adapters/[entity]-repository.prisma.ts
+import { PrismaClient } from '@prisma/client';
+import { I[Entity]Repository } from '@/domain/[feature]/ports/[entity]-repository';
+import type { 
+  [Entity], 
+  Create[Entity]Input, 
+  Update[Entity]Input 
+} from '@/domain/[feature]/models/[entity]';
+
+/**
+ * Prisma implementation of [Entity]Repository
+ */
+export class Prisma[Entity]Repository implements I[Entity]Repository {
+  constructor(private prisma: PrismaClient) {}
+
+  async findById(id: string): Promise<[Entity] | null> {
+    const [entity] = await this.prisma.[entity].findUnique({ 
+      where: { id } 
+    });
+    
+    return [entity] ? this.toModel([entity]) : null;
+  }
+
+  async findAll(): Promise<[Entity][]> {
+    const [entities] = await this.prisma.[entity].findMany();
+    return [entities].map([entity] => this.toModel([entity]));
+  }
+
+  async save(input: Create[Entity]Input): Promise<[Entity]> {
+    const [entity] = await this.prisma.[entity].create({ 
+      data: {
+        ...input,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    });
+    
+    return this.toModel([entity]);
+  }
+
+  async update(id: string, input: Update[Entity]Input): Promise<[Entity]> {
+    const [entity] = await this.prisma.[entity].update({
+      where: { id },
+      data: {
+        ...input,
+        updatedAt: new Date(),
+      },
+    });
+    
+    return this.toModel([entity]);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.[entity].delete({ where: { id } });
+  }
+
+  /**
+   * Transform Prisma model to domain model
+   * This is where you map external structure to domain structure
+   * 
+   * IMPORTANT: Type prisma[Entity] properly - NEVER use 'any'
+   */
+  private toModel(prisma[Entity]: Prisma.[Entity]GetPayload<{}>): [Entity] {
+    return {
+      id: prisma[Entity].id,
+      name: prisma[Entity].name,
+      // Map all fields from Prisma model to domain model
+      createdAt: prisma[Entity].createdAt,
+      updatedAt: prisma[Entity].updatedAt,
+    };
+  }
+}
+```
+
+## With Relations
+
+```typescript
+async findById(id: string): Promise<[Entity] | null> {
+  const [entity] = await this.prisma.[entity].findUnique({
+    where: { id },
+    include: {
+      relatedEntity: true,
+      items: true,
+    },
+  });
+  
+  return [entity] ? this.toModel([entity]) : null;
+}
+
+// ✅ Type with Prisma payload type - NEVER use 'any'
+private toModel(
+  prisma[Entity]: Prisma.[Entity]GetPayload<{
+    include: { relatedEntity: true; items: true }
+  }>
+): [Entity] {
+  return {
+    id: prisma[Entity].id,
+    // Map relations
+    relatedEntity: prisma[Entity].relatedEntity 
+      ? mapRelatedEntity(prisma[Entity].relatedEntity)
+      : null,
+    items: prisma[Entity].items.map(mapItem),
+  };
+}
+```
+
+## Error Handling
+
+```typescript
+async findById(id: string): Promise<[Entity] | null> {
+  try {
+    const [entity] = await this.prisma.[entity].findUnique({ where: { id } });
+    return [entity] ? this.toModel([entity]) : null;
+  } catch (error) {
+    throw new RepositoryError('Failed to find [entity]', error);
+  }
+}
+```
+
+## Usage
+
+1. Replace `[Entity]` with entity name (e.g., `User`, `Product`)
+2. Replace `[entity]` with lowercase (e.g., `user`, `product`)
+3. Replace `[entities]` with plural lowercase (e.g., `users`, `products`)
+4. Replace `[feature]` with feature name (e.g., `users`, `products`)
+5. Implement all interface methods
+6. Add toModel() mapper
+7. Handle errors appropriately

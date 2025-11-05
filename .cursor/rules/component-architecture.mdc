@@ -1,0 +1,629 @@
+---
+description: Rules for component architecture and decomposition
+globs:
+  - "**/components/**"
+alwaysApply: false
+---
+
+# Component Architecture & Decomposition
+
+## Core Principles
+
+1. **Single Responsibility**: One component = one clear purpose
+2. **Composability**: Build complex UIs from simple components
+3. **Reusability**: Avoid duplication, extract common patterns
+4. **Type Safety**: All props must be explicitly typed
+
+## Component Organization
+
+```
+components/
+├── ui/              # ShadCn UI Components (generic, reusable everywhere)
+├── shared/          # Shared across multiple features
+└── domain/          # Feature-specific components
+    └── [feature]/
+```
+
+### `ui/` - ShadCn UI Components
+
+**Purpose**: ShadCn UI components - Generic, accessible, customizable design system components with NO business logic.
+
+**Source**: Components from [ShadCn UI](https://ui.shadcn.com/)
+
+**Examples**: `Button`, `Input`, `Card`, `Badge`, `Modal`, `Dialog`, `Select`
+
+**Characteristics**:
+- ✅ Based on Radix UI primitives
+- ✅ Fully accessible (ARIA compliant)
+- ✅ Highly customizable with Tailwind CSS
+- ✅ Copy-paste components (not npm package)
+- ✅ You own the code
+
+```typescript
+// ✅ Good - Generic, configurable
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
+  children: React.ReactNode;
+}
+
+export function Button({ variant = "primary", size = "md", ...props }: ButtonProps) {
+  return <button className={getStyles(variant, size)} {...props} />;
+}
+```
+
+**Rules**:
+- ✅ Accept `className` for extension
+- ✅ Extend native HTML props (`...HTMLButtonElement`)
+- ✅ Support variants and sizes
+- ❌ NO business logic
+- ❌ NO API calls
+- ❌ NO domain knowledge
+
+### `shared/` - Shared Components
+
+**Purpose**: Reusable across multiple features but with some app context.
+
+**Examples**: `PageContainer`, `PageHeader`, `NavigationLink`, `Sidebar`
+
+```typescript
+// ✅ Good - Reusable layout component
+interface PageContainerProps {
+  children: React.ReactNode;
+  maxWidth?: "sm" | "md" | "lg";
+  centered?: boolean;
+}
+
+export function PageContainer({ children, maxWidth = "lg", centered }: PageContainerProps) {
+  return (
+    <main className={`${getMaxWidth(maxWidth)} ${centered ? "mx-auto" : ""} p-6`}>
+      {children}
+    </main>
+  );
+}
+```
+
+**Rules**:
+- ✅ Can use `ui/` components
+- ✅ Can have app-specific styling
+- ❌ NO feature-specific logic
+- ❌ NO direct API calls
+
+### `domain/[feature]/` - Feature-Specific Components
+
+**Purpose**: Components tied to a specific feature or domain.
+
+**Examples**: `ChatForm`, `MessageList`, `ProductCard`, `UserProfile`
+
+```typescript
+// ✅ Good - Feature-specific component
+import type { ChatUiMessage } from "@/app/types/chat";
+import { Card } from "@/app/components/ui/Card";
+import { MessageItem } from "./MessageItem";
+
+interface MessageListProps {
+  messages: ChatUiMessage[];
+}
+
+export function MessageList({ messages }: MessageListProps) {
+  return (
+    <Card className="h-80 overflow-y-auto">
+      {messages.map((msg) => (
+        <MessageItem key={msg.id} message={msg} />
+      ))}
+    </Card>
+  );
+}
+```
+
+**Rules**:
+- ✅ Can use `ui/` components
+- ✅ Can use `shared/` components
+- ✅ Can contain business logic
+- ✅ Use domain types
+- ❌ Keep under 200 lines (split if larger)
+
+## When to Extract a Component
+
+### ✅ Extract when:
+
+1. **Duplication** (DRY principle)
+```typescript
+// ❌ Bad - Duplicated code
+<div className="border rounded-lg p-4">
+  <h2>{title1}</h2>
+</div>
+<div className="border rounded-lg p-4">
+  <h2>{title2}</h2>
+</div>
+
+// ✅ Good - Extracted component
+<Card><h2>{title1}</h2></Card>
+<Card><h2>{title2}</h2></Card>
+```
+
+2. **Complex logic** (> 20 lines)
+```typescript
+// ❌ Bad - Complex inline logic
+{messages.map((message) => (
+  <div key={message.id} className={...}>
+    {message.parts.map((part, index) => {
+      if (part.type === "text") return <span>{part.text}</span>;
+      if (part.type === "image") return <img src={part.url} />;
+      // ... 15 more lines
+    })}
+  </div>
+))}
+
+// ✅ Good - Extracted component
+{messages.map((message) => (
+  <MessageItem key={message.id} message={message} />
+))}
+```
+
+3. **Reusability** (used in 2+ places)
+
+4. **Testability** (need to test in isolation)
+
+5. **Clarity** (improves readability)
+
+### ❌ Don't extract when:
+
+1. **Single use** + **< 10 lines** + **No complex logic**
+2. **Tightly coupled** to parent (lots of props drilling)
+3. **Premature abstraction** (YAGNI - You Ain't Gonna Need It)
+
+## Component Size Guidelines
+
+| Lines | Action |
+|-------|--------|
+| < 50 | ✅ Perfect |
+| 50-100 | ⚠️ Consider splitting |
+| 100-200 | 🚨 Should split soon |
+| > 200 | ❌ Must split immediately |
+
+## Naming Conventions
+
+```typescript
+// ✅ Good - Clear, descriptive names (ALL in kebab-case)
+button.tsx           // ShadCn UI component
+page-container.tsx   // Shared component
+chat-form.tsx        // Feature component
+message-item.tsx     // Sub-component
+page-header.tsx      // Shared component
+
+// ❌ Bad - Vague names
+comp.tsx
+utils.tsx
+item.tsx
+thing.tsx
+
+// ❌ Bad - PascalCase for component files
+PageContainer.tsx
+ChatForm.tsx
+MessageItem.tsx
+```
+
+**Rules**:
+- **ALL component files** (UI, Shared, Domain): Use **kebab-case** (e.g., `button.tsx`, `page-container.tsx`, `chat-form.tsx`)
+- **Why:** Consistency across the codebase, matches ShadCn convention, better for tooling
+- Name file same as component export pattern: `page-container.tsx` exports `PageContainer`
+- Be specific: `user-profile-card.tsx` not `card.tsx` (without context)
+- Avoid generic names: `component.tsx`, `wrapper.tsx`, `container.tsx` (without context)
+
+**Import examples:**
+```typescript
+// All components - kebab-case path
+import { Button } from "@/app/components/ui/button";
+import { PageContainer } from "@/app/components/shared/page-container";
+import { ChatForm } from "@/app/components/domain/chat/chat-form";
+```
+
+## Export Conventions
+
+### ❌ NO Default Exports (except Next.js pages)
+
+**Use named exports for all components:**
+
+```typescript
+// ✅ Good - Named export
+export function Button({ children, ...props }: ButtonProps) {
+  return <button {...props}>{children}</button>;
+}
+
+// ❌ Bad - Default export
+export default function Button({ children, ...props }: ButtonProps) {
+  return <button {...props}>{children}</button>;
+}
+```
+
+**Why named exports?**
+1. **Better refactoring**: IDE can rename across all imports
+2. **No naming conflicts**: Import name must match export name
+3. **Better tree-shaking**: Bundler can optimize better
+4. **Consistency**: Same pattern everywhere
+5. **Auto-complete**: IDE suggests correct name
+
+**Exception**: Next.js special files MUST use default export:
+- `page.tsx`
+- `layout.tsx`
+- `route.ts`
+- `loading.tsx`
+- `error.tsx`
+- `not-found.tsx`
+
+### Import Pattern
+
+```typescript
+// ✅ Good - Named import
+import { Button } from "@/app/components/ui/Button";
+import { PageContainer } from "@/app/components/shared/PageContainer";
+
+// ❌ Bad - Default import
+import Button from "@/app/components/ui/Button";
+import PageContainer from "@/app/components/shared/PageContainer";
+```
+
+## ClassName Management with cn()
+
+### ❌ NEVER Use Template Literals for className
+
+**Always use `cn()` utility from `@/app/lib/utils`:**
+
+```typescript
+// ❌ BAD - Template literal concatenation
+className={`${baseClass} ${variantClass} ${condition ? "active" : ""}`}
+
+// ✅ GOOD - Use cn() utility
+import { cn } from "@/app/lib/utils";
+
+className={cn(
+  baseClass,
+  variantClass,
+  condition && "active",
+  className // Allow override from props
+)}
+```
+
+**Why cn() is mandatory:**
+- ✅ Merges Tailwind classes correctly (handles conflicts)
+- ✅ Removes duplicates automatically
+- ✅ Handles `undefined`/`null` gracefully
+- ✅ Better for conditional classes
+- ✅ Type-safe
+
+**Pattern:**
+```typescript
+export function Component({ className, variant, ...props }: Props) {
+  return (
+    <div
+      className={cn(
+        "base-styles",
+        variant === "primary" && "primary-styles",
+        variant === "secondary" && "secondary-styles",
+        className // Always allow override
+      )}
+      {...props}
+    />
+  );
+}
+```
+
+### Use `size-*` instead of `w-* h-*` (Tailwind Optimization)
+
+**❌ NEVER use `w-* h-*` when both width and height are the same.**
+
+Always use `size-*` utility class when width and height are equal:
+
+```typescript
+// ❌ BAD - Separate width and height
+<Brain className="w-5 h-5 text-blue-500" />
+<Loader2 className="w-8 h-8 animate-spin" />
+<div className="w-10 h-10 rounded-full" />
+
+// ✅ GOOD - Use size-* utility
+<Brain className="size-5 text-blue-500" />
+<Loader2 className="size-8 animate-spin" />
+<div className="size-10 rounded-full" />
+```
+
+**Why use `size-*`:**
+- ✅ More concise and readable
+- ✅ Less code (1 class instead of 2)
+- ✅ Clearer intent (square/circular elements)
+- ✅ Tailwind CSS optimization
+
+**When to use:**
+- ✅ Icons (same width and height)
+- ✅ Avatar images (circular/square)
+- ✅ Buttons with icon size
+- ✅ Loading spinners
+- ✅ Any element where `width === height`
+
+**When NOT to use:**
+- ❌ Different width and height: `w-5 h-10` (keep as is)
+- ❌ Responsive sizing: `w-full h-auto` (keep as is)
+
+## Props Interface Patterns
+
+### 1. Extending HTML Elements
+
+```typescript
+// ✅ Good - Extend native props
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary";
+  children: React.ReactNode;
+}
+
+export function Button({ variant = "primary", className, ...props }: ButtonProps) {
+  return <button className={`${baseStyles} ${className}`} {...props} />;
+}
+```
+
+### 2. Composition over Configuration
+
+```typescript
+// ❌ Bad - Too many boolean props
+<Modal showHeader showFooter showCloseButton centerContent />
+
+// ✅ Good - Composition
+<Modal>
+  <Modal.Header>
+    <Modal.CloseButton />
+  </Modal.Header>
+  <Modal.Content>{children}</Modal.Content>
+  <Modal.Footer>{actions}</Modal.Footer>
+</Modal>
+```
+
+### 3. Discriminated Unions for Variants
+
+```typescript
+// ✅ Good - Type-safe variants
+type MessageProps = 
+  | { type: "text"; text: string }
+  | { type: "image"; url: string; alt: string }
+  | { type: "file"; fileName: string; size: number };
+
+export function Message(props: MessageProps) {
+  switch (props.type) {
+    case "text": return <p>{props.text}</p>;
+    case "image": return <img src={props.url} alt={props.alt} />;
+    case "file": return <File name={props.fileName} size={props.size} />;
+  }
+}
+```
+
+## Import Conventions
+
+### ❌ NO Barrel Exports (index.ts)
+
+**Why**: Performance issues, breaks tree-shaking, circular dependencies.
+
+```typescript
+// ❌ Bad - Barrel export
+// components/ui/index.ts
+export { Button } from "./Button";
+export { Input } from "./Input";
+export { Card } from "./Card";
+
+// ❌ Bad - Importing from barrel
+import { Button, Input } from "@/components/ui";
+```
+
+```typescript
+// ✅ Good - Direct imports
+import { Button } from "@/app/components/ui/Button";
+import { Input } from "@/app/components/ui/Input";
+import { Card } from "@/app/components/ui/Card";
+```
+
+**Exception**: Next.js special files (`page.tsx`, `layout.tsx`, `route.ts`) are OK.
+
+## File Structure Examples
+
+### Small Component (< 50 lines)
+
+```typescript
+// components/ui/Badge.tsx
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: "success" | "warning" | "error";
+}
+
+export function Badge({ children, variant = "success" }: BadgeProps) {
+  const colors = {
+    success: "bg-green-100 text-green-800",
+    warning: "bg-yellow-100 text-yellow-800",
+    error: "bg-red-100 text-red-800",
+  };
+  
+  return (
+    <span className={`px-2 py-1 rounded text-xs ${colors[variant]}`}>
+      {children}
+    </span>
+  );
+}
+```
+
+### Medium Component (50-100 lines)
+
+```typescript
+// components/domain/chat/ChatForm.tsx
+"use client";
+
+import { useState } from "react";
+import { Input } from "@/app/components/ui/Input";
+import { Button } from "@/app/components/ui/Button";
+
+interface ChatFormProps {
+  onSubmit: (text: string) => void;
+  status: "ready" | "streaming" | "error";
+  placeholder?: string;
+}
+
+export function ChatForm({ 
+  onSubmit, 
+  status, 
+  placeholder = "Type a message..." 
+}: ChatFormProps) {
+  const [input, setInput] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (input.trim() && status === "ready") {
+      onSubmit(input);
+      setInput("");
+    }
+  };
+
+  const isDisabled = status !== "ready";
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <Input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder={placeholder}
+        disabled={isDisabled}
+        aria-label="Message input"
+      />
+      <Button type="submit" disabled={isDisabled}>
+        {status === "streaming" ? "Sending..." : "Send"}
+      </Button>
+    </form>
+  );
+}
+```
+
+### Large Component (needs splitting)
+
+```typescript
+// ❌ Bad - 250 lines component
+export function UserProfile() {
+  // Profile header (50 lines)
+  // Profile stats (40 lines)
+  // Profile posts (80 lines)
+  // Profile settings (80 lines)
+}
+
+// ✅ Good - Split into sub-components
+export function UserProfile() {
+  return (
+    <>
+      <ProfileHeader user={user} />
+      <ProfileStats stats={stats} />
+      <ProfilePosts posts={posts} />
+      <ProfileSettings settings={settings} />
+    </>
+  );
+}
+```
+
+## Testing Strategy
+
+```typescript
+// ChatForm.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ChatForm } from './ChatForm';
+
+describe('ChatForm', () => {
+  it('should call onSubmit when form is submitted', () => {
+    const mockSubmit = vi.fn();
+    render(<ChatForm onSubmit={mockSubmit} status="ready" />);
+    
+    const input = screen.getByRole('textbox');
+    const button = screen.getByRole('button');
+    
+    fireEvent.change(input, { target: { value: 'Hello' } });
+    fireEvent.click(button);
+    
+    expect(mockSubmit).toHaveBeenCalledWith('Hello');
+  });
+  
+  it('should not submit when status is not ready', () => {
+    const mockSubmit = vi.fn();
+    render(<ChatForm onSubmit={mockSubmit} status="streaming" />);
+    
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+    
+    expect(mockSubmit).not.toHaveBeenCalled();
+  });
+});
+```
+
+## Performance Best Practices
+
+### 1. Avoid inline functions in props
+
+```typescript
+// ❌ Bad - Creates new function on every render
+<Button onClick={() => handleClick(id)}>Click</Button>
+
+// ✅ Good - Memoized or stable reference
+const handleButtonClick = useCallback(() => handleClick(id), [id]);
+<Button onClick={handleButtonClick}>Click</Button>
+```
+
+### 2. Use React.memo for expensive components
+
+```typescript
+// ✅ Good - Prevents re-renders when props haven't changed
+export const MessageList = React.memo(function MessageList({ messages }: Props) {
+  return (
+    <Card>
+      {messages.map((msg) => (
+        <MessageItem key={msg.id} message={msg} />
+      ))}
+    </Card>
+  );
+});
+```
+
+### 3. Keep component files small for code splitting
+
+```typescript
+// ✅ Good - Lazy load heavy components
+const HeavyChart = lazy(() => import('@/components/domain/analytics/HeavyChart'));
+
+function Dashboard() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <HeavyChart data={data} />
+    </Suspense>
+  );
+}
+```
+
+## Checklist Before Creating a Component
+
+- [ ] Is this logic duplicated in 2+ places?
+- [ ] Is this > 20 lines of complex logic?
+- [ ] Would this improve readability?
+- [ ] Is this testable in isolation?
+- [ ] Are the props clearly defined with types?
+- [ ] Is the component name descriptive?
+- [ ] Is the component in the right folder (`ui/`, `shared/`, `domain/`)?
+- [ ] Does it follow Single Responsibility?
+- [ ] Is it < 200 lines?
+
+## Summary
+
+| Category | Description | Examples | Can Import From |
+|----------|-------------|----------|-----------------|
+| **ui/** | ShadCn UI components (accessible, customizable) | Button, Input, Card, Dialog | Nothing |
+| **shared/** | Reusable across features | PageContainer, NavigationLink | `ui/` |
+| **domain/[feature]/** | Feature-specific | ChatForm, MessageList | `ui/`, `shared/` |
+
+**Golden Rules**:
+1. ❌ NO barrel exports (index.ts)
+2. ❌ NO default exports (except Next.js pages)
+3. ✅ Named exports only (`export function Button`)
+4. ✅ Direct imports only
+5. ✅ One component per file
+6. ✅ Keep components < 200 lines
+7. ✅ Extract when duplicated or complex
+8. ✅ Use domain types
+9. ❌ NO `any` type
+10. ✅ `ui/` = ShadCn UI components

@@ -1,0 +1,137 @@
+---
+description: Step-by-step guide to create a new feature
+globs:
+alwaysApply: false
+---
+
+# Create New Feature - Workflow
+
+Follow this workflow when creating a new feature.
+
+## Step 1: Create Directory Structure
+
+```bash
+mkdir -p src/domain/[feature]/{models,business-rules,behavior-rules,data-integration,services,ports}
+mkdir -p tests/unit/domain/[feature]/business-rules
+```
+
+## Step 2: Create Model
+
+Use @model-template.mdc
+
+```typescript
+// src/domain/[feature]/models/[entity].ts
+import { z } from 'zod';
+
+export const [Entity]Schema = z.object({
+  id: z.string().uuid(),
+  // Add your fields
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type [Entity] = z.infer<typeof [Entity]Schema>;
+export const Create[Entity]Schema = [Entity]Schema.omit({ id: true, createdAt: true, updatedAt: true });
+export type Create[Entity]Input = z.infer<typeof Create[Entity]Schema>;
+```
+
+## Step 3: Create Business Rules
+
+```typescript
+// src/domain/[feature]/business-rules/*.ts
+export function isActive([entity]: [Entity]): boolean {
+  // Add business logic
+  return true;
+}
+```
+
+## Step 4: Create Port (Interface)
+
+Use @repository-template.mdc
+
+```typescript
+// src/domain/[feature]/ports/[entity]-repository.ts
+export interface I[Entity]Repository {
+  findById(id: string): Promise<[Entity] | null>;
+  findAll(): Promise<[Entity][]>;
+  save(input: Create[Entity]Input): Promise<[Entity]>;
+  delete(id: string): Promise<void>;
+}
+```
+
+## Step 5: Create Service
+
+Use @service-template.mdc
+
+```typescript
+// src/domain/[feature]/services/[feature]-service.ts
+export async function get[Entity](
+  id: string,
+  repository: I[Entity]Repository
+): Promise<[Entity]> {
+  const [entity] = await repository.findById(id);
+  if (![entity]) throw new Error('[Entity] not found');
+  return [entity];
+}
+```
+
+## Step 6: Create Adapter
+
+Use @repository-template.mdc
+
+```typescript
+// src/infra/adapters/[entity]-repository.prisma.ts
+export class Prisma[Entity]Repository implements I[Entity]Repository {
+  // Implement interface
+}
+```
+
+## Step 7: Create API Route
+
+```typescript
+// src/app/api/[feature]/route.ts
+import { get[Entities], create[Entity] } from '@/domain/[feature]/services/[feature]-service';
+
+export async function GET() {
+  const [entities] = await get[Entities](repository);
+  return NextResponse.json([entities]);
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const [entity] = await create[Entity](body, repository);
+  return NextResponse.json([entity], { status: 201 });
+}
+```
+
+## Step 8: Create Tests
+
+```typescript
+// tests/unit/domain/[feature]/business-rules/*.test.ts
+import { describe, it, expect } from 'vitest';
+
+describe('[feature] business rules', () => {
+  it('should validate correctly', () => {
+    expect(isActive(mock[Entity])).toBe(true);
+  });
+});
+```
+
+## Checklist
+
+- [ ] Domain model with Zod schema
+- [ ] Business rules (pure functions)
+- [ ] Repository port (interface)
+- [ ] Service functions
+- [ ] Repository adapter (Prisma/Drizzle)
+- [ ] API route handlers
+- [ ] Unit tests for business rules
+- [ ] Integration tests for services
+- [ ] Types exported and used consistently
+
+## Quick Command
+
+```bash
+# Or use the MCP server:
+# "Create a [feature] feature with [description]"
+```

@@ -1,0 +1,142 @@
+---
+description: Template for creating domain services (use cases)
+globs:
+alwaysApply: false
+---
+
+# Domain Service Template
+
+Use this template when creating a new domain service.
+
+## Basic CRUD Service
+
+```typescript
+// domain/[feature]/services/[feature]-service.ts
+import type { I[Entity]Repository } from '../ports/[entity]-repository';
+import type { [Entity], Create[Entity]Input, Update[Entity]Input } from '../models/[entity]';
+import { [Entity]Schema } from '../models/[entity]';
+
+/**
+ * Get [entity] by ID
+ */
+export async function get[Entity](
+  id: string,
+  repository: I[Entity]Repository
+): Promise<[Entity]> {
+  const [entity] = await repository.findById(id);
+  
+  if (![entity]) {
+    throw new Error('[Entity] not found');
+  }
+  
+  return [entity];
+}
+
+/**
+ * Get all [entities]
+ */
+export async function get[Entities](
+  repository: I[Entity]Repository
+): Promise<[Entity][]> {
+  return await repository.findAll();
+}
+
+/**
+ * Create new [entity]
+ */
+export async function create[Entity](
+  input: Create[Entity]Input,
+  repository: I[Entity]Repository
+): Promise<[Entity]> {
+  // 1. Validate input
+  const validated = [Entity]Schema.omit({ 
+    id: true, 
+    createdAt: true, 
+    updatedAt: true 
+  }).parse(input);
+  
+  // 2. Apply business rules
+  // Add your business rules here
+  
+  // 3. Save via repository
+  const [entity] = await repository.save(validated);
+  
+  return [entity];
+}
+
+/**
+ * Update [entity]
+ */
+export async function update[Entity](
+  id: string,
+  input: Update[Entity]Input,
+  repository: I[Entity]Repository
+): Promise<[Entity]> {
+  // 1. Check if exists
+  const existing = await get[Entity](id, repository);
+  
+  // 2. Validate update
+  const validated = Update[Entity]Schema.parse(input);
+  
+  // 3. Apply business rules
+  // Add your business rules here
+  
+  // 4. Update
+  return await repository.update(id, validated);
+}
+
+/**
+ * Delete [entity]
+ */
+export async function delete[Entity](
+  id: string,
+  repository: I[Entity]Repository
+): Promise<void> {
+  // 1. Check if exists
+  await get[Entity](id, repository);
+  
+  // 2. Check business rules (can be deleted?)
+  // Add your business rules here
+  
+  // 3. Delete
+  await repository.delete(id);
+}
+```
+
+## Service with Multiple Dependencies
+
+```typescript
+export async function create[Entity](
+  input: Create[Entity]Input,
+  [entity]Repo: I[Entity]Repository,
+  emailProvider: IEmailProvider,
+  logger: ILogger
+): Promise<[Entity]> {
+  // Validate
+  const validated = Create[Entity]Schema.parse(input);
+  
+  // Business rules
+  const existing = await [entity]Repo.findByEmail(validated.email);
+  if (existing) {
+    throw new Error('[Entity] already exists');
+  }
+  
+  // Save
+  const [entity] = await [entity]Repo.save(validated);
+  
+  // Side effects
+  await emailProvider.sendWelcomeEmail([entity].email);
+  logger.info(`[Entity] created: ${[entity].id}`);
+  
+  return [entity];
+}
+```
+
+## Usage
+
+1. Replace `[Entity]` with entity name (e.g., `User`, `Product`)
+2. Replace `[entity]` with lowercase (e.g., `user`, `product`)
+3. Replace `[Entities]` with plural (e.g., `Users`, `Products`)
+4. Replace `[feature]` with feature name (e.g., `users`, `products`)
+5. Add specific business logic
+6. Use dependency injection for all external dependencies

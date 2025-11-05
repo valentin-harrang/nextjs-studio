@@ -1,36 +1,232 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🤖 AI Assistant Hub
 
-## Getting Started
+Projet Next.js démontrant trois façons d'intégrer l'IA avec le **AI SDK** de Vercel.
 
-First, run the development server:
+## 🎯 Objectifs
+
+- **CSR (Client-Side Rendering)** : Chat interactif en temps réel
+- **SSR (Server-Side Rendering)** : Génération de texte côté serveur
+- **SSG (Static Site Generation)** : Pages statiques
+
+## 🛠️ Stack Technique
+
+- **Framework** : [Next.js 16](https://nextjs.org) (App Router)
+- **IA** : [Vercel AI SDK](https://ai-sdk.dev) avec Groq (Mixtral)
+- **Language** : TypeScript (strict mode)
+- **Styling** : Tailwind CSS 4
+- **State Management** : React hooks (`useState`, `useChat`)
+
+## 📦 Installation
+
+```bash
+# Cloner le projet
+git clone <repository-url>
+cd ai-assistant-hub
+
+# Installer les dépendances
+npm install
+
+# Configurer les variables d'environnement
+cp .env.example .env.local
+
+# Éditer .env.local et ajouter votre clé API Groq
+# GROQ_API_KEY=your_groq_api_key_here
+```
+
+## 🔑 Variables d'environnement
+
+### Configuration requise
+
+Créez un fichier `.env.local` à la racine du projet (copiez depuis `.env.example`) :
+
+```env
+# Groq API Configuration
+# Get your API key from: https://console.groq.com
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### Obtenir une clé API Groq
+
+1. Allez sur [https://console.groq.com](https://console.groq.com)
+2. Créez un compte (gratuit)
+3. Générez une clé API
+4. Copiez la clé et ajoutez-la dans `.env.local`
+
+### Fichiers d'environnement
+
+- `.env.example` - Template avec les variables nécessaires (versionné)
+- `.env.local` - Votre fichier local avec les vraies clés (ignoré par git)
+- `.env` - Alternative à `.env.local` (ignoré par git)
+
+**⚠️ Important** : Ne jamais commiter `.env.local` ou `.env` avec vos vraies clés API !
+
+## 🚀 Démarrage
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Structure du projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+├── api/
+│   └── chat/
+│       └── route.ts                    # API Route pour le streaming chat
+├── components/
+│   ├── ui/                            # ShadCn UI (kebab-case)
+│   │   ├── button.tsx                 # Button component
+│   │   ├── input.tsx                  # Input component
+│   │   └── card.tsx                   # Card component
+│   ├── shared/                        # Composants partagés (kebab-case)
+│   │   ├── navigation-link.tsx        # Lien de navigation
+│   │   ├── page-container.tsx         # Container de page
+│   │   └── page-header.tsx            # En-tête de page
+│   └── domain/                        # Composants domaine (kebab-case)
+│       └── chat/                      # Composants spécifiques au chat
+│           ├── message-item.tsx       # Item de message
+│           ├── message-list.tsx       # Liste de messages
+│           └── chat-form.tsx          # Formulaire de chat
+├── lib/
+│   └── utils.ts                       # Utilitaires (cn() pour ShadCn)
+├── chat/
+│   └── page.tsx                       # Page Chat (CSR)
+├── prompts/
+│   └── page.tsx                       # Page Générateur d'idées (SSR)
+├── about/
+│   └── page.tsx                       # Page À propos (SSG)
+├── types/
+│   └── chat.ts                        # Types TypeScript partagés
+├── layout.tsx                         # Layout global
+└── page.tsx                           # Page d'accueil
+```
 
-## Learn More
+## 🎨 Pages
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Chat (CSR) - `/chat`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Utilise `useChat` de `@ai-sdk/react`
+- Streaming en temps réel
+- State management avec `useState`
+- Messages typés avec TypeScript
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Générateur d'idées (SSR) - `/prompts`
 
-## Deploy on Vercel
+- Server Component Next.js
+- Génération côté serveur avec `generateText`
+- Rendu à chaque requête
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3. À propos (SSG) - `/about`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Page statique
+- Génération à la build
+
+## 🧪 Commandes
+
+```bash
+# Développement
+npm run dev
+
+# Build
+npm run build
+
+# Démarrer en production
+npm start
+
+# Linter
+npm run lint
+```
+
+## 📚 Bonnes pratiques appliquées
+
+### ✅ TypeScript strict
+
+- ❌ **JAMAIS** de type `any` (explicite ou implicite)
+- ✅ Typage strict avec interfaces
+- ✅ Types partagés dans `app/types/`
+
+### ✅ Architecture des composants
+
+- **`components/ui/`** : **ShadCn UI** - Composants accessibles basés sur Radix UI
+- **`components/shared/`** : Composants partagés entre pages (PageContainer, PageHeader)
+- **`components/domain/`** : Composants spécifiques au domaine (MessageList, ChatForm)
+- ✅ Named exports uniquement (❌ **PAS de default exports**)
+- ✅ Imports directs (❌ **PAS de barrel exports** pour les performances)
+- ✅ Composants petits et focalisés (Single Responsibility)
+- ✅ Extraction dès qu'il y a duplication ou > 20 lignes de logique
+- ✅ Un composant par fichier, un fichier par composant
+
+**ShadCn UI** (`components/ui/`) :
+- ✅ Composants copiés depuis [ui.shadcn.com](https://ui.shadcn.com/)
+- ✅ Basés sur Radix UI (accessibilité ARIA)
+- ✅ Stylés avec Tailwind CSS
+- ✅ Code que vous possédez (pas de npm package)
+
+**Règles de découpe** (voir `.cursor/rules/component-architecture.mdc`) :
+- Extraire si **duplication** (2+ endroits)
+- Extraire si **> 20 lignes de logique complexe**
+- Extraire si besoin de **tester en isolation**
+- Garder les composants **< 200 lignes** (split si plus grand)
+
+### ✅ State Management
+
+- `useState` pour l'état local (formulaire)
+- `useChat` pour le chat streaming (AI SDK)
+- Pas de state management global (inutile pour ce projet)
+
+### ✅ Conventions de nommage
+
+- **Composants (fichiers)** : `kebab-case` (`chat-page.tsx`, `button.tsx`, `page-container.tsx`)
+- **Composants (exports)** : `PascalCase` (`export function ChatPage()`, `export function Button()`)
+- **Fonctions** : `camelCase` (`handleSubmit`, `handleSendMessage`)
+- **Types/Interfaces** : `PascalCase` (`ChatMessage`, `ChatFormProps`)
+- **Utilities** : `kebab-case` (`format-date.ts`, `validate-email.ts`)
+
+### ✅ Exports & Imports
+
+**Exports** :
+- ✅ Named exports uniquement : `export function Button()`
+- ❌ **JAMAIS** de default exports (sauf pages Next.js)
+- **Pourquoi** : Meilleur refactoring, tree-shaking, auto-complete
+
+**Fichiers** :
+- ✅ **TOUS les composants** : **kebab-case** (`button.tsx`, `page-container.tsx`, `chat-form.tsx`)
+- ✅ **Pourquoi** : Cohérence dans tout le codebase, correspond à la convention ShadCn
+
+**Imports** :
+- ❌ **JAMAIS** de barrel exports (`index.ts`) - Impact performance
+- ✅ Imports directs uniquement :
+  ```typescript
+  // ✅ Good - Tous les composants (kebab-case path)
+  import { Button } from "@/app/components/ui/button";
+  import { PageContainer } from "@/app/components/shared/page-container";
+  import { ChatForm } from "@/app/components/domain/chat/chat-form";
+  
+  // ❌ Bad - Barrel export
+  import { Button } from "@/app/components/ui";
+  
+  // ❌ Bad - Default import
+  import Button from "@/app/components/ui/button";
+  ```
+- ✅ Ordre : external → internal (`@/`) → relative (`./`)
+- ✅ Utiliser `type` pour les imports de types uniquement
+
+### ✅ AI SDK - Bonnes pratiques
+
+- Utilise `useChat` pour le streaming client
+- Utilise `streamText` pour l'API route
+- Utilise `generateText` pour SSR
+- Structure `message.parts` (nouvelle API)
+
+## 🔗 Ressources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Vercel AI SDK](https://ai-sdk.dev/docs)
+- [Groq Documentation](https://console.groq.com/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+
+## 📄 License
+
+MIT

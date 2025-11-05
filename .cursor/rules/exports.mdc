@@ -1,0 +1,317 @@
+---
+alwaysApply: true
+---
+
+# Export & Import Guidelines
+
+## 🚨 Critical Rules
+
+### ❌ NO Default Exports (except Next.js pages)
+
+**All components, utilities, and functions MUST use named exports.**
+
+```typescript
+// ✅ GOOD - Named export
+export function Button({ children }: Props) {
+  return <button>{children}</button>;
+}
+
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString();
+}
+
+// ❌ BAD - Default export
+export default function Button({ children }: Props) {
+  return <button>{children}</button>;
+}
+```
+
+### Exception: Next.js Special Files
+
+These files **MUST** use default export:
+- `page.tsx`
+- `layout.tsx`
+- `route.ts`
+- `loading.tsx`
+- `error.tsx`
+- `not-found.tsx`
+- `template.tsx`
+- `middleware.ts`
+
+```typescript
+// app/chat/page.tsx
+// ✅ MUST use default export
+export default function ChatPage() {
+  return <div>Chat</div>;
+}
+```
+
+## Why Named Exports?
+
+### 1. Better Refactoring
+IDE can automatically rename across all files:
+```typescript
+// Rename Button → PrimaryButton
+// IDE updates ALL imports automatically
+export function Button() { } // → export function PrimaryButton() { }
+
+// ❌ With default export, IDE can't track renames
+export default function Button() { } // Imports could be named anything
+```
+
+### 2. No Naming Conflicts
+```typescript
+// ✅ Named - Import name MUST match
+import { Button } from "./Button"; // ✅ Clear
+import { Btn } from "./Button";    // ❌ Error!
+
+// ❌ Default - Can be imported with any name
+import Button from "./Button";     // OK
+import Btn from "./Button";        // Also OK (confusing!)
+import WhateverName from "./Button"; // Also OK (very confusing!)
+```
+
+### 3. Better Tree-Shaking
+Bundlers can eliminate unused exports:
+```typescript
+// ✅ Named exports - Can eliminate unused
+export function Button() { }
+export function Badge() { }
+
+// Only import what you need
+import { Button } from "./components";
+// Badge is eliminated from bundle ✅
+
+// ❌ Default export - Hard to tree-shake
+export default { Button, Badge };
+// Both are bundled even if Badge is unused ❌
+```
+
+### 4. Consistency
+```typescript
+// ✅ Same pattern everywhere
+import { Button } from "@/components/ui/Button";
+import { formatDate } from "@/utils/format-date";
+import { useAuth } from "@/hooks/useAuth";
+
+// ❌ Mixed patterns (confusing)
+import Button from "@/components/ui/Button";
+import { formatDate } from "@/utils/format-date";
+import useAuth from "@/hooks/useAuth";
+```
+
+### 5. Better Auto-Complete
+IDE suggests the correct name:
+```typescript
+// ✅ Named - IDE suggests "Button"
+import { B|} from "@/components/ui/Button";
+          ^-- IDE: "Button"
+
+// ❌ Default - IDE doesn't know
+import |from "@/components/ui/Button";
+       ^-- IDE: ??? (could be any name)
+```
+
+## Import Patterns
+
+### Components
+
+```typescript
+// ✅ GOOD - Named import
+import { Button } from "@/app/components/ui/Button";
+import { Input } from "@/app/components/ui/Input";
+import { Card } from "@/app/components/ui/Card";
+
+// ❌ BAD - Default import
+import Button from "@/app/components/ui/Button";
+```
+
+### Utilities
+
+```typescript
+// ✅ GOOD - Named export + import
+// utils/format-date.ts
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString();
+}
+
+// page.tsx
+import { formatDate } from "@/utils/format-date";
+
+// ❌ BAD - Default export
+// utils/format-date.ts
+export default function formatDate(date: Date): string {
+  return date.toLocaleDateString();
+}
+```
+
+### Hooks
+
+```typescript
+// ✅ GOOD - Named export
+// hooks/useAuth.ts
+export function useAuth() {
+  return { user, login, logout };
+}
+
+// page.tsx
+import { useAuth } from "@/hooks/useAuth";
+
+// ❌ BAD - Default export
+export default function useAuth() {
+  return { user, login, logout };
+}
+```
+
+### Types
+
+```typescript
+// ✅ GOOD - Named type export
+// types/user.ts
+export interface User {
+  id: string;
+  email: string;
+}
+
+export type UserRole = "admin" | "user";
+
+// page.tsx
+import type { User, UserRole } from "@/types/user";
+
+// ❌ BAD - Default type export
+export default interface User {
+  id: string;
+  email: string;
+}
+```
+
+## Migration Guide
+
+### Converting Default to Named Export
+
+**Before:**
+```typescript
+// Button.tsx
+export default function Button({ children }: Props) {
+  return <button>{children}</button>;
+}
+
+// page.tsx
+import Button from "@/components/ui/Button";
+```
+
+**After:**
+```typescript
+// Button.tsx
+export function Button({ children }: Props) {
+  return <button>{children}</button>;
+}
+
+// page.tsx
+import { Button } from "@/components/ui/Button";
+```
+
+### VSCode Quick Fix
+
+1. Remove `default` from export:
+   ```typescript
+   export default function Button() { }
+   // ↓
+   export function Button() { }
+   ```
+
+2. VSCode will show errors on all imports
+3. Click "Quick Fix" (Cmd+.) on each import
+4. Select "Convert default import to named import"
+
+## Common Mistakes
+
+### ❌ Mistake 1: Default export in component
+
+```typescript
+// ❌ BAD
+export default function Button() {
+  return <button>Click</button>;
+}
+```
+
+```typescript
+// ✅ GOOD
+export function Button() {
+  return <button>Click</button>;
+}
+```
+
+### ❌ Mistake 2: Mixing default and named
+
+```typescript
+// ❌ BAD - Confusing mix
+export default function Button() { }
+export function Badge() { }
+
+// Now you have:
+import Button from "./Button";      // default
+import { Badge } from "./Button";   // named
+// Inconsistent!
+```
+
+```typescript
+// ✅ GOOD - All named
+export function Button() { }
+export function Badge() { }
+
+// Consistent:
+import { Button, Badge } from "./components";
+```
+
+### ❌ Mistake 3: Default export for Next.js non-page files
+
+```typescript
+// components/Header.tsx
+// ❌ BAD - Not a Next.js page, shouldn't use default
+export default function Header() {
+  return <header>Header</header>;
+}
+```
+
+```typescript
+// components/Header.tsx
+// ✅ GOOD - Named export
+export function Header() {
+  return <header>Header</header>;
+}
+```
+
+## Exceptions Summary
+
+| File Type | Export Type | Example |
+|-----------|-------------|---------|
+| Components (`components/`) | ✅ Named | `export function Button()` |
+| Utilities (`utils/`) | ✅ Named | `export function formatDate()` |
+| Hooks (`hooks/`) | ✅ Named | `export function useAuth()` |
+| Types (`types/`) | ✅ Named | `export interface User` |
+| **Next.js Pages** (`app/**/page.tsx`) | ⚠️ **Default** | `export default function Page()` |
+| **Next.js Layouts** (`app/**/layout.tsx`) | ⚠️ **Default** | `export default function Layout()` |
+| **API Routes** (`app/api/**/route.ts`) | ⚠️ **Default** | `export async function GET()` (named!) |
+
+**Note**: API routes use **named** exports (`GET`, `POST`, etc.), not default!
+
+## Checklist
+
+Before committing code, check:
+
+- [ ] All components use named exports (`export function`)
+- [ ] All utilities use named exports
+- [ ] All hooks use named exports
+- [ ] All types use named exports
+- [ ] Next.js pages use default exports (`page.tsx`, `layout.tsx`)
+- [ ] API routes use named exports (`GET`, `POST`)
+- [ ] No barrel exports (`index.ts`)
+- [ ] All imports use named syntax (`import { X }`)
+
+## Resources
+
+- [Why I don't use default exports](https://humanwhocodes.com/blog/2019/01/stop-using-default-exports-javascript-module/)
+- [Named vs Default Exports](https://basarat.gitbook.io/typescript/main-1/defaultisbad)
+- [Tree Shaking](https://webpack.js.org/guides/tree-shaking/)
+

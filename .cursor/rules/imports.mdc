@@ -1,0 +1,225 @@
+---
+description: Import conventions and best practices
+globs: []
+alwaysApply: true
+---
+
+# Import Conventions
+
+## Critical Rule: NO Barrel Exports
+
+**❌ NEVER create barrel export files (index.ts/index.js)**
+
+### Why Barrel Exports Are Bad
+
+1. **Performance**: Breaks tree-shaking, bundles unused code
+2. **Build Time**: Increases bundle size and compilation time
+3. **Circular Dependencies**: Can create hard-to-debug circular imports
+4. **Type Inference**: Slower TypeScript type checking
+5. **Hot Module Replacement**: Breaks HMR in development
+
+### ❌ What NOT to Do
+
+```typescript
+// ❌ BAD - Creating a barrel export file
+// components/ui/index.ts
+export { Button } from "./Button";
+export { Input } from "./Input";
+export { Card } from "./Card";
+
+// ❌ BAD - Importing from barrel
+import { Button, Input, Card } from "@/components/ui";
+```
+
+### ✅ What to Do Instead
+
+```typescript
+// ✅ GOOD - Direct imports from source files
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
+```
+
+## Import Ordering
+
+Group imports in the following order:
+
+```typescript
+// 1. External dependencies (React, Next.js, libraries)
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+
+// 2. Internal absolute imports (@/)
+import { Button } from "@/app/components/ui/Button";
+import { PageContainer } from "@/app/components/shared/PageContainer";
+import type { ChatMessage } from "@/app/types/chat";
+
+// 3. Relative imports (same directory or parent)
+import { MessageItem } from "./MessageItem";
+import { formatDate } from "../utils/format-date";
+```
+
+## Import Patterns
+
+### Type Imports
+
+```typescript
+// ✅ Good - Use 'type' keyword for type-only imports
+import type { User } from "@/app/types/user";
+import type { ReactNode } from "react";
+
+// ❌ Bad - Importing types as values
+import { User } from "@/app/types/user";
+```
+
+### Component Imports
+
+```typescript
+// ✅ Good - One component per line for clarity
+import { Button } from "@/app/components/ui/Button";
+import { Input } from "@/app/components/ui/Input";
+import { Card } from "@/app/components/ui/Card";
+
+// ❌ Bad - Mixing multiple sources in one line
+import { Button, Input } from "@/app/components/ui/Button"; // confusing
+```
+
+### Lazy Loading
+
+```typescript
+// ✅ Good - Lazy load heavy components
+import { lazy, Suspense } from "react";
+
+const HeavyChart = lazy(() => import("@/app/components/charts/HeavyChart"));
+
+function Dashboard() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <HeavyChart data={data} />
+    </Suspense>
+  );
+}
+```
+
+## Path Aliases
+
+Use absolute imports with `@/` alias:
+
+```typescript
+// ✅ Good - Absolute imports with alias
+import { Button } from "@/app/components/ui/Button";
+import type { User } from "@/app/types/user";
+
+// ❌ Bad - Relative imports for distant files
+import { Button } from "../../../components/ui/Button";
+import type { User } from "../../types/user";
+```
+
+**Exception**: Relative imports are OK for files in the same directory or parent:
+
+```typescript
+// ✅ Good - Same directory or parent
+import { MessageItem } from "./MessageItem";
+import { formatDate } from "../utils/format-date";
+```
+
+## Exceptions
+
+The following Next.js special files are OK (they're not barrel exports):
+- `page.tsx`
+- `layout.tsx`
+- `route.ts`
+- `loading.tsx`
+- `error.tsx`
+- `not-found.tsx`
+
+## Migration Guide
+
+If you have existing barrel exports:
+
+### Step 1: Remove barrel files
+```bash
+rm components/ui/index.ts
+rm components/shared/index.ts
+rm components/domain/*/index.ts
+```
+
+### Step 2: Update imports
+```typescript
+// Before
+import { Button, Input } from "@/components/ui";
+
+// After
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+```
+
+### Step 3: Verify build
+```bash
+npm run build
+```
+
+## Export Conventions
+
+### ❌ NO Default Exports (except Next.js pages)
+
+**Use named exports for all components and utilities:**
+
+```typescript
+// ✅ Good - Named export
+export function Button({ children, ...props }: ButtonProps) {
+  return <button {...props}>{children}</button>;
+}
+
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString();
+}
+
+// ❌ Bad - Default export
+export default function Button({ children, ...props }: ButtonProps) {
+  return <button {...props}>{children}</button>;
+}
+```
+
+**Why named exports?**
+1. **Better refactoring**: IDE can rename across all imports automatically
+2. **No naming conflicts**: Import name must match export name
+3. **Better tree-shaking**: Bundler can optimize better
+4. **Consistency**: Same pattern everywhere in the codebase
+5. **Auto-complete**: IDE suggests correct name immediately
+
+**Exception**: Next.js special files MUST use default export:
+- `page.tsx` - Page components
+- `layout.tsx` - Layout components
+- `route.ts` - API route handlers
+- `loading.tsx` - Loading UI
+- `error.tsx` - Error UI
+- `not-found.tsx` - 404 UI
+- `template.tsx` - Template components
+
+**Import pattern:**
+
+```typescript
+// ✅ Good - Named import
+import { Button } from "@/app/components/ui/Button";
+import { formatDate } from "@/app/utils/format-date";
+
+// ❌ Bad - Default import (for non-Next.js files)
+import Button from "@/app/components/ui/Button";
+import formatDate from "@/app/utils/format-date";
+
+// ✅ OK - Default import for Next.js pages
+import ChatPage from "@/app/chat/page";
+```
+
+## Summary
+
+**Golden Rules**:
+1. ❌ NO barrel exports (index.ts)
+2. ❌ NO default exports (except Next.js pages)
+3. ✅ Named exports only (`export function`, `export const`)
+4. ✅ Direct imports only
+5. ✅ Use `@/` alias for absolute imports
+6. ✅ Use `type` keyword for type-only imports
+7. ✅ Order imports: external → internal → relative

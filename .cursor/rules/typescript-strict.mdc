@@ -1,0 +1,294 @@
+---
+description: Strict TypeScript rules and type safety enforcement
+globs:
+alwaysApply: true
+---
+
+# TypeScript Strict Rules
+
+## Critical: NEVER Use `any` Type
+
+**The `any` type is FORBIDDEN in this codebase.**
+
+### ❌ What NOT to Do
+
+```typescript
+// ❌ FORBIDDEN
+function processData(data: any) {
+  return data.something;
+}
+
+// ❌ FORBIDDEN
+const response: any = await fetch('/api/users');
+
+// ❌ FORBIDDEN
+const items: any[] = [];
+
+// ❌ FORBIDDEN
+const config: Record<string, any> = {};
+```
+
+### ✅ What to Do Instead
+
+#### 1. Use `unknown` for Truly Unknown Types
+
+```typescript
+// ✅ Good - Use unknown + type guard
+function processData(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'something' in data) {
+    return (data as { something: string }).something;
+  }
+  throw new Error('Invalid data');
+}
+
+// ✅ Good - Use unknown with validation
+const response: unknown = await fetch('/api/users').then(r => r.json());
+const users = UserArraySchema.parse(response); // Zod validation
+```
+
+#### 2. Use Specific Union Types
+
+```typescript
+// ✅ Good - Specific union
+type ApiResponse = 
+  | { success: true; data: User }
+  | { success: false; error: string };
+
+function handleResponse(response: ApiResponse) {
+  if (response.success) {
+    return response.data; // TypeScript knows it's User
+  }
+  throw new Error(response.error);
+}
+```
+
+#### 3. Use Generic Types
+
+```typescript
+// ✅ Good - Generic function
+function wrapInArray<T>(item: T): T[] {
+  return [item];
+}
+
+// ✅ Good - Generic interface
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+}
+```
+
+#### 4. Define Proper Types
+
+```typescript
+// ✅ Good - Define the actual type
+interface Config {
+  apiUrl: string;
+  timeout: number;
+  headers: Record<string, string>;
+}
+
+const config: Config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+  headers: { 'Content-Type': 'application/json' },
+};
+```
+
+#### 5. Use Zod for External Data
+
+```typescript
+// ✅ Good - Validate external data with Zod
+import { z } from 'zod';
+
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+});
+
+// Parse external data (throws if invalid)
+const user = UserSchema.parse(externalData);
+
+// Or use safeParse for error handling
+const result = UserSchema.safeParse(externalData);
+if (result.success) {
+  const user = result.data; // Typed correctly
+}
+```
+
+## When You Think You Need `any`
+
+### Scenario 1: External API Response
+
+```typescript
+// ❌ Bad
+const data: any = await response.json();
+
+// ✅ Good - Use Zod
+const data: unknown = await response.json();
+const validated = ApiResponseSchema.parse(data);
+```
+
+### Scenario 2: Generic Utility
+
+```typescript
+// ❌ Bad
+function clone(obj: any): any {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+// ✅ Good - Use generic
+function clone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj)) as T;
+}
+```
+
+### Scenario 3: Event Handlers
+
+```typescript
+// ❌ Bad
+function handleEvent(event: any) {
+  console.log(event.target.value);
+}
+
+// ✅ Good - Use proper event type
+function handleEvent(event: React.ChangeEvent<HTMLInputElement>) {
+  console.log(event.target.value);
+}
+```
+
+### Scenario 4: Dynamic Object Properties
+
+```typescript
+// ❌ Bad
+const config: any = {};
+config.whatever = 'value';
+
+// ✅ Good - Use Record with specific types
+const config: Record<string, string | number> = {};
+config.apiUrl = 'https://api.example.com';
+config.timeout = 5000;
+
+// ✅ Better - Define interface
+interface Config {
+  apiUrl?: string;
+  timeout?: number;
+  [key: string]: string | number | undefined;
+}
+```
+
+### Scenario 5: Third-Party Library Without Types
+
+```typescript
+// ❌ Bad
+const lib: any = require('untyped-library');
+
+// ✅ Good - Create minimal types
+interface UntypedLibrary {
+  method1: (param: string) => void;
+  method2: () => Promise<unknown>;
+}
+
+const lib = require('untyped-library') as UntypedLibrary;
+
+// ✅ Better - Contribute types to DefinitelyTyped
+```
+
+## Type Safety Best Practices
+
+### 1. Enable Strict Mode
+
+Ensure `tsconfig.json` has:
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  }
+}
+```
+
+### 2. Use Type Guards
+
+```typescript
+function isUser(value: unknown): value is User {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'email' in value
+  );
+}
+
+// Usage
+if (isUser(data)) {
+  // TypeScript knows data is User here
+  console.log(data.email);
+}
+```
+
+### 3. Use Discriminated Unions
+
+```typescript
+type Result<T> =
+  | { success: true; data: T }
+  | { success: false; error: Error };
+
+function handleResult<T>(result: Result<T>) {
+  if (result.success) {
+    return result.data; // TypeScript knows data exists
+  } else {
+    throw result.error; // TypeScript knows error exists
+  }
+}
+```
+
+### 4. Use `satisfies` Operator
+
+```typescript
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+} satisfies Config; // Ensures config matches Config but keeps literal types
+```
+
+## Exceptions (Extremely Rare)
+
+In **extremely rare** cases where `any` is unavoidable:
+
+1. **Document why** with a comment explaining the constraint
+2. **Isolate it** in a small utility function
+3. **Add a TODO** to remove it later
+4. **Type the boundaries** - ensure `any` doesn't leak
+
+```typescript
+// ⚠️ RARE EXCEPTION - Document thoroughly
+// TODO: Remove when library X provides proper types
+// Reason: Third-party library has broken type definitions
+function unsafeLibraryWrapper(input: string): unknown { // Note: returns unknown, not any
+  const lib: any = require('broken-lib'); // Isolated any
+  return lib.process(input);
+}
+
+// Validate the output
+const result = UnsafeLibraryWrapper('input');
+const validated = ResultSchema.parse(result); // Immediately validate
+```
+
+## Enforcement
+
+This rule is enforced by:
+- ✅ ESLint rule: `@typescript-eslint/no-explicit-any`
+- ✅ Code review checklist
+- ✅ This Cursor rule (prevents suggestions)
+
+## Summary
+
+- **NEVER** use `any` type
+- **ALWAYS** use `unknown` for truly unknown types
+- **PREFER** specific types, unions, or generics
+- **VALIDATE** external data with Zod
+- **TYPE** everything explicitly
+
+**Remember:** `any` defeats the entire purpose of TypeScript. It's a bug waiting to happen.

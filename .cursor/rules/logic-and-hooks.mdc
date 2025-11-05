@@ -1,0 +1,506 @@
+# Logic Separation & Hooks Guidelines
+
+## Critical Rules
+
+### 1. **NO Business Logic or Utilities Directly in React Components**
+
+React components should only contain:
+- ✅ UI rendering logic (JSX)
+- ✅ Event handlers (that call external functions)
+- ✅ Hook calls
+- ✅ Component composition
+
+React components should **NOT** contain:
+- ❌ Business logic (calculations, validations, transformations)
+- ❌ Utility functions (formatting, parsing, filtering)
+- ❌ Data processing logic
+- ❌ Complex algorithms
+
+### 2. **Check usehooks-ts Before Creating Custom Hooks**
+
+Before creating a custom hook:
+1. **Search usehooks-ts documentation** → https://usehooks-ts.com/
+2. If the hook exists → Use it
+3. If the hook doesn't exist → Create custom hook
+
+**Common hooks available in usehooks-ts:**
+- `useDebounce` - Debounce a value
+- `useLocalStorage` - Persist state in localStorage
+- `useMediaQuery` - Responsive breakpoints
+- `useOnClickOutside` - Detect clicks outside element
+- `useCopyToClipboard` - Copy text to clipboard
+- `useToggle` - Boolean toggle state
+- `useWindowSize` - Window dimensions
+- `useEventListener` - Add event listeners
+- And many more...
+
+## Extract Business Logic
+
+### ❌ Bad - Logic Inside Component
+
+```typescript
+'use client';
+
+import { useState } from 'react';
+
+export function ProductCard({ product }: { product: Product }) {
+  const [quantity, setQuantity] = useState(1);
+
+  // ❌ BAD - Price calculation logic in component
+  const calculateTotal = () => {
+    let total = product.price * quantity;
+    
+    // Apply discount
+    if (quantity >= 10) {
+      total = total * 0.9; // 10% discount
+    } else if (quantity >= 5) {
+      total = total * 0.95; // 5% discount
+    }
+    
+    // Add tax
+    total = total * 1.2; // 20% VAT
+    
+    return total;
+  };
+
+  // ❌ BAD - Validation logic in component
+  const isValidQuantity = () => {
+    return quantity > 0 && quantity <= product.stock;
+  };
+
+  // ❌ BAD - Formatting logic in component
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(price);
+  };
+
+  return (
+    <div>
+      <h3>{product.name}</h3>
+      <p>{formatPrice(product.price)}</p>
+      <input
+        type="number"
+        value={quantity}
+        onChange={(e) => setQuantity(Number(e.target.value))}
+      />
+      {!isValidQuantity() && <span>Invalid quantity</span>}
+      <p>Total: {formatPrice(calculateTotal())}</p>
+    </div>
+  );
+}
+```
+
+### ✅ Good - Logic Extracted
+
+**1. Extract to utility functions:**
+
+```typescript
+// app/lib/pricing/calculate-total.ts
+export function calculateProductTotal(price: number, quantity: number): number {
+  let total = price * quantity;
+  
+  // Apply discount
+  if (quantity >= 10) {
+    total = total * 0.9; // 10% discount
+  } else if (quantity >= 5) {
+    total = total * 0.95; // 5% discount
+  }
+  
+  // Add tax
+  total = total * 1.2; // 20% VAT
+  
+  return total;
+}
+```
+
+```typescript
+// app/lib/pricing/validate-quantity.ts
+export function isValidQuantity(quantity: number, stock: number): boolean {
+  return quantity > 0 && quantity <= stock;
+}
+```
+
+```typescript
+// app/lib/formatting/format-price.ts
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price);
+}
+```
+
+**2. Clean component:**
+
+```typescript
+// app/components/domain/products/product-card.tsx
+'use client';
+
+import { useState } from 'react';
+import { calculateProductTotal } from '@/app/lib/pricing/calculate-total';
+import { isValidQuantity } from '@/app/lib/pricing/validate-quantity';
+import { formatPrice } from '@/app/lib/formatting/format-price';
+
+export function ProductCard({ product }: { product: Product }) {
+  const [quantity, setQuantity] = useState(1);
+
+  const total = calculateProductTotal(product.price, quantity);
+  const isValid = isValidQuantity(quantity, product.stock);
+
+  return (
+    <div>
+      <h3>{product.name}</h3>
+      <p>{formatPrice(product.price)}</p>
+      <input
+        type="number"
+        value={quantity}
+        onChange={(e) => setQuantity(Number(e.target.value))}
+      />
+      {!isValid && <span>Invalid quantity</span>}
+      <p>Total: {formatPrice(total)}</p>
+    </div>
+  );
+}
+```
+
+## Use usehooks-ts Before Creating Custom Hooks
+
+### ❌ Bad - Reinventing the Wheel
+
+```typescript
+// ❌ BAD - Creating custom useDebounce when it exists in usehooks-ts
+import { useState, useEffect } from 'react';
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+// Usage
+export function SearchBar() {
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
+
+  // ...
+}
+```
+
+### ✅ Good - Use Existing Hook from usehooks-ts
+
+```typescript
+// ✅ GOOD - Use usehooks-ts
+import { useDebounce } from 'usehooks-ts';
+
+export function SearchBar() {
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 500);
+
+  // ...
+}
+```
+
+### More Examples
+
+#### Example 1: LocalStorage
+
+```typescript
+// ❌ BAD - Custom implementation
+import { useState, useEffect } from 'react';
+
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initialValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+
+// ✅ GOOD - Use usehooks-ts
+import { useLocalStorage } from 'usehooks-ts';
+
+function ThemeToggle() {
+  const [theme, setTheme] = useLocalStorage('theme', 'light');
+  // ...
+}
+```
+
+#### Example 2: Media Query
+
+```typescript
+// ❌ BAD - Custom implementation
+import { useState, useEffect } from 'react';
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    setMatches(media.matches);
+
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [query]);
+
+  return matches;
+}
+
+// ✅ GOOD - Use usehooks-ts
+import { useMediaQuery } from 'usehooks-ts';
+
+function ResponsiveComponent() {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  // ...
+}
+```
+
+#### Example 3: Click Outside
+
+```typescript
+// ❌ BAD - Custom implementation
+import { useEffect, useRef } from 'react';
+
+function useClickOutside(callback: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        callback();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [callback]);
+
+  return ref;
+}
+
+// ✅ GOOD - Use usehooks-ts
+import { useOnClickOutside } from 'usehooks-ts';
+
+function Dropdown() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useOnClickOutside(ref, () => setIsOpen(false));
+
+  // ...
+}
+```
+
+## Where to Put Logic
+
+### Component Structure
+
+```
+app/
+├── components/
+│   ├── domain/         # UI components only (no business logic)
+│   ├── shared/         # Reusable UI components
+│   └── ui/            # Design system components
+├── lib/               # ✅ Business logic & utilities go here
+│   ├── pricing/
+│   │   ├── calculate-total.ts
+│   │   └── validate-quantity.ts
+│   ├── formatting/
+│   │   ├── format-date.ts
+│   │   └── format-price.ts
+│   ├── validation/
+│   │   ├── validate-email.ts
+│   │   └── validate-phone.ts
+│   └── utils.ts       # Generic utilities
+└── hooks/             # ✅ Custom hooks (check usehooks-ts first!)
+    └── use-custom-logic.ts
+```
+
+### Decision Tree
+
+```
+Is this logic needed?
+├─ YES → Where should it go?
+│   ├─ Is it a common hook pattern?
+│   │   ├─ YES → Check usehooks-ts first
+│   │   │   ├─ Found → Use it
+│   │   │   └─ Not found → Create custom hook in app/hooks/
+│   │   └─ NO → Continue
+│   ├─ Is it business logic?
+│   │   └─ YES → Extract to app/lib/[domain]/
+│   ├─ Is it a utility function?
+│   │   └─ YES → Extract to app/lib/[category]/
+│   └─ Is it pure UI logic?
+│       └─ YES → Keep in component (but minimal)
+└─ NO → Remove it
+```
+
+## Benefits
+
+### 1. Testability
+
+```typescript
+// ✅ Easy to test utility functions
+import { calculateProductTotal } from '@/app/lib/pricing/calculate-total';
+
+describe('calculateProductTotal', () => {
+  it('applies 10% discount for 10+ items', () => {
+    expect(calculateProductTotal(100, 10)).toBe(1080); // 100 * 10 * 0.9 * 1.2
+  });
+});
+
+// ❌ Hard to test logic inside component
+// Need to render component, simulate interactions, etc.
+```
+
+### 2. Reusability
+
+```typescript
+// ✅ Can be used anywhere
+import { formatPrice } from '@/app/lib/formatting/format-price';
+
+// In component A
+<p>{formatPrice(product.price)}</p>
+
+// In component B
+<span>{formatPrice(total)}</span>
+
+// In API route
+return { formatted: formatPrice(amount) };
+```
+
+### 3. Maintainability
+
+```typescript
+// ✅ One place to update logic
+// app/lib/pricing/calculate-total.ts
+export function calculateProductTotal(price: number, quantity: number): number {
+  // Update discount logic once, affects all usages
+  // ...
+}
+
+// ❌ With logic in components, need to update multiple files
+```
+
+### 4. Type Safety
+
+```typescript
+// ✅ Explicit types and documentation
+/**
+ * Calculates the total price including discounts and tax
+ * @param price - Unit price
+ * @param quantity - Number of items
+ * @returns Total price with tax
+ */
+export function calculateProductTotal(price: number, quantity: number): number {
+  // ...
+}
+```
+
+## Common Patterns to Extract
+
+### ✅ Extract These to app/lib/
+
+1. **Formatting**
+   - Date formatting → `app/lib/formatting/format-date.ts`
+   - Price formatting → `app/lib/formatting/format-price.ts`
+   - Number formatting → `app/lib/formatting/format-number.ts`
+
+2. **Validation**
+   - Email validation → `app/lib/validation/validate-email.ts`
+   - Phone validation → `app/lib/validation/validate-phone.ts`
+   - Custom rules → `app/lib/validation/validate-*.ts`
+
+3. **Calculations**
+   - Price calculations → `app/lib/pricing/calculate-*.ts`
+   - Date calculations → `app/lib/dates/calculate-*.ts`
+   - Math operations → `app/lib/math/calculate-*.ts`
+
+4. **Transformations**
+   - Data mapping → `app/lib/transformations/map-*.ts`
+   - Data filtering → `app/lib/transformations/filter-*.ts`
+   - Data sorting → `app/lib/transformations/sort-*.ts`
+
+5. **Constants**
+   - Configuration → `app/constants/config.ts`
+   - Enums → `app/constants/enums.ts`
+   - Static data → `app/constants/*.ts`
+
+### ✅ Keep These in Components
+
+1. **UI State**
+   ```typescript
+   const [isOpen, setIsOpen] = useState(false);
+   ```
+
+2. **Event Handlers** (that call external functions)
+   ```typescript
+   const handleClick = () => {
+     doSomething(data); // doSomething is in app/lib/
+   };
+   ```
+
+3. **Rendering Logic**
+   ```typescript
+   if (isLoading) return <Spinner />;
+   ```
+
+## Installation
+
+Install usehooks-ts:
+
+```bash
+npm install usehooks-ts
+```
+
+## Resources
+
+- [usehooks-ts Documentation](https://usehooks-ts.com/) - All available hooks
+- [usehooks-ts GitHub](https://github.com/juliencrn/usehooks-ts) - Source code
+- [Testing Library](https://testing-library.com/) - Test utilities separately
+
+## Checklist
+
+Before writing code in a component:
+
+- [ ] Is this business logic? → Extract to `app/lib/[domain]/`
+- [ ] Is this a utility function? → Extract to `app/lib/[category]/`
+- [ ] Is this a custom hook? → Check usehooks-ts first
+- [ ] Does usehooks-ts have this hook? → Use it
+- [ ] Is this pure UI logic? → OK to keep in component (minimal)
+- [ ] Can this be tested independently? → Extract it
+- [ ] Will this be reused? → Extract it
+
+## Summary
+
+**Golden Rules:**
+
+1. ❌ **NO business logic or utilities in React components**
+2. ✅ **Extract logic to `app/lib/[category]/`**
+3. ✅ **Check usehooks-ts before creating custom hooks**
+4. ✅ **Components = UI + composition only**
+5. ✅ **Logic = testable, reusable, maintainable**
+
+**Benefits:**
+- ✅ Better testability
+- ✅ Better reusability
+- ✅ Better maintainability
+- ✅ Cleaner components
+- ✅ Single source of truth

@@ -1,0 +1,100 @@
+---
+description: Template for creating domain models with Zod
+globs:
+alwaysApply: false
+---
+
+# Domain Model Template
+
+Use this template when creating a new domain model.
+
+**IMPORTANT:** Never use `any` type. Always use specific types or `unknown`.
+
+## Basic Model
+
+```typescript
+// domain/[feature]/models/[entity].ts
+import { z } from 'zod';
+
+/**
+ * [Entity] schema - Source of truth
+ */
+export const [Entity]Schema = z.object({
+  id: z.string().uuid(),
+  // Add your fields here
+  name: z.string().min(1),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type [Entity] = z.infer<typeof [Entity]Schema>;
+
+/**
+ * Create [Entity] input schema
+ */
+export const Create[Entity]Schema = [Entity]Schema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Create[Entity]Input = z.infer<typeof Create[Entity]Schema>;
+
+/**
+ * Update [Entity] input schema
+ */
+export const Update[Entity]Schema = [Entity]Schema.partial().omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Update[Entity]Input = z.infer<typeof Update[Entity]Schema>;
+```
+
+## Common Field Types
+
+```typescript
+// String validations
+name: z.string().min(1).max(100),
+email: z.string().email(),
+url: z.string().url(),
+slug: z.string().regex(/^[a-z0-9-]+$/),
+
+// Number validations
+age: z.number().int().positive(),
+price: z.number().positive(),
+quantity: z.number().int().min(0),
+
+// Enum
+status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING']),
+role: z.enum(['USER', 'ADMIN', 'MODERATOR']),
+
+// Optional fields
+description: z.string().optional(),
+avatar: z.string().url().optional(),
+
+// Arrays
+tags: z.array(z.string()),
+items: z.array(OrderItemSchema),
+
+// Nested objects
+address: z.object({
+  street: z.string(),
+  city: z.string(),
+  zipCode: z.string(),
+}),
+
+// Dates
+birthDate: z.date(),
+startDate: z.date().min(new Date()),
+
+// Custom validations
+password: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/),
+```
+
+## Usage
+
+1. Replace `[Entity]` with your entity name (e.g., `Product`, `User`)
+2. Replace `[feature]` with your feature name (e.g., `products`, `users`)
+3. Add your specific fields
+4. Export types for use in other layers

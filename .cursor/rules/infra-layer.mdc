@@ -1,0 +1,117 @@
+---
+description: Rules for infrastructure layer (adapters and implementations)
+globs:
+  - src/infra/**
+alwaysApply: false
+---
+
+# Infrastructure Layer Rules
+
+## Purpose
+
+Implement ports (interfaces) defined in the domain layer.
+
+## Adapter Pattern
+
+```typescript
+// infra/adapters/user-repository.prisma.ts
+import { PrismaClient } from '@prisma/client';
+import { IUserRepository } from '@/domain/users/ports/user-repository';
+import type { User, CreateUserInput } from '@/domain/users/models/user';
+
+export class PrismaUserRepository implements IUserRepository {
+  constructor(private prisma: PrismaClient) {}
+
+  async findById(id: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    return user ? this.toModel(user) : null;
+  }
+
+  async save(input: CreateUserInput): Promise<User> {
+    const user = await this.prisma.user.create({ data: input });
+    return this.toModel(user);
+  }
+
+  // Private mapper: External data → Domain model
+  private toModel(prismaUser: any): User {
+    return {
+      id: prismaUser.id,
+      email: prismaUser.email,
+      role: prismaUser.role,
+    };
+  }
+}
+```
+
+## Critical Rules
+
+1. **Always implement a port interface**
+   ```typescript
+   export class PrismaUserRepository implements IUserRepository {
+     // Must implement all interface methods
+   }
+   ```
+
+2. **Always map external data to domain models**
+   ```typescript
+  // ✅ Type the external data properly (or use unknown)
+  private toModel(prismaUser: PrismaUser): DomainModel {
+    // Transform external structure to domain structure
+  }
+   ```
+
+3. **Handle errors appropriately**
+   ```typescript
+   async findById(id: string): Promise<User | null> {
+     try {
+       const user = await this.prisma.user.findUnique({ where: { id } });
+       return user ? this.toModel(user) : null;
+     } catch (error) {
+       // Log and transform to domain error
+       throw new RepositoryError('Failed to find user', error);
+     }
+   }
+   ```
+
+## Directory Structure
+
+```
+infra/
+├── adapters/           # Repository implementations
+│   ├── user-repository.prisma.ts
+│   └── product-repository.drizzle.ts
+├── db/                 # Database clients
+│   ├── prisma.ts
+│   └── drizzle.ts
+├── email/              # Email providers
+│   ├── resend.ts
+│   └── mailgun.ts
+├── payments/           # Payment providers
+│   ├── stripe.ts
+│   └── polar.ts
+└── cache/              # Cache implementations
+    └── redis.ts
+```
+
+## Benefits of This Pattern
+
+- ✅ Easy to swap implementations (Prisma → Drizzle)
+- ✅ Domain stays clean and testable
+- ✅ Can mock adapters in tests
+- ✅ Infrastructure concerns isolated
+
+## Testing
+
+Use real infrastructure in integration tests:
+
+```typescript
+// tests/integration/infra/adapters/user-repository.test.ts
+describe('PrismaUserRepository', () => {
+  it('should save and retrieve user', async () => {
+    const repo = new PrismaUserRepository(testPrisma);
+    const user = await repo.save({ email: 'test@example.com' });
+    const found = await repo.findById(user.id);
+    expect(found).toEqual(user);
+  });
+});
+```

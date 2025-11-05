@@ -1,0 +1,84 @@
+---
+description: Naming conventions for files, folders, variables, and types
+globs:
+alwaysApply: true
+---
+
+# Naming Conventions
+
+## Files and Folders
+
+- **React Components**: `kebab-case` → `user-card.tsx`, `payment-form.tsx`, `page-container.tsx`
+- **Hooks**: `kebab-case` with `use` prefix → `use-user.ts`, `use-auth.ts`
+- **Utilities**: `kebab-case` → `format-date.ts`, `validate-email.ts`
+- **Services**: `kebab-case` → `create-user.ts`, `process-payment.ts`
+- **Types/Models**: `kebab-case` → `user.ts`, `product.ts`
+- **Folders**: `kebab-case` → `business-rules/`, `data-integration/`
+- **Tests**: same name + `.test.ts` → `validate-user-role.test.ts`
+
+**Important**: Component files use **kebab-case**, but exports remain **PascalCase**:
+```typescript
+// File: user-card.tsx (kebab-case)
+export function UserCard() { } // Export: PascalCase
+
+// Import
+import { UserCard } from "@/app/components/ui/user-card"; // kebab-case path
+```
+
+## Variables and Functions
+
+```typescript
+// ✅ Good
+const userName = 'John';
+function getUserById(id: string) {}
+const isActive = true;
+
+// ❌ Bad
+const UserName = 'John';
+function get_user_by_id(id: string) {}
+const active = true; // Not descriptive enough
+```
+
+## Constants
+
+```typescript
+// ✅ Global constants: UPPER_SNAKE_CASE
+export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+
+// ✅ Config objects: camelCase with 'as const'
+export const appConfig = {
+  maxUploadSize: 5 * 1024 * 1024,
+} as const;
+```
+
+## Types and Interfaces
+
+```typescript
+// ✅ Types for entities
+export type User = { ... };
+
+// ✅ Interfaces for ports (with 'I' prefix)
+export interface IUserRepository { ... }
+
+// ✅ Input/Output types with suffixes
+export type CreateUserInput = Omit<User, 'id'>;
+export type UpdateUserInput = Partial<User>;
+export type UserResponse = User & { token: string };
+
+// ❌ NEVER use 'any' type
+// Use 'unknown' instead when type is truly unknown
+const badExample: any = something; // ❌ FORBIDDEN
+
+// ✅ Good alternatives:
+const goodExample: unknown = something; // Then type-guard
+const specific: string | number = something; // Specific union
+const generic: <T>(value: T) => T; // Generic type
+```
+
+## Critical Rules
+
+1. **Be descriptive**: `isUserActive` not `active`
+2. **Be consistent**: Same pattern across codebase
+3. **No abbreviations**: `user` not `usr`, `product` not `prod`
+4. **Prefix interfaces**: `IUserRepository` not `UserRepository`
+5. **NEVER use `any` type**: Use `unknown`, specific types, or generics instead

@@ -1,0 +1,989 @@
+---
+description: React State Management - Best Practices 2025
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "**/*.jsx"
+  - "**/*.js"
+alwaysApply: true
+---
+
+# React State Management - Best Practices 2025
+
+## Core Principles
+
+- **Local by default, global on demand**
+- Always start with the simplest solution (useState)
+- Only escalate to a more complex solution when a real need arises
+- Avoid over-engineering and premature abstractions
+- **Golden Rule for Shareable State:** Would the user want to share this state via URL? → Use Nuqs
+
+## Quick Decision Tree
+
+```
+1. Is this state shareable via URL? (filters, pagination, search)
+   └─ YES → 🔵 Nuqs
+
+2. NO → Is it server data? (API, database)
+   └─ YES → 🟣 TanStack Query / SWR
+
+3. NO → Is it a form? (login, create, edit)
+   └─ YES → 🟢 React Hook Form
+
+4. NO → Is it global to the app? (theme, cart)
+   ├─ Temporary → 🟡 Jotai / Zustand
+   └─ Persisted → 🟠 Jotai with Storage / Zustand Persist
+
+5. NO → Is it shared between few components? (2-3 levels)
+   ├─ < 3 levels → Props drilling
+   └─ 3+ levels → React Context
+
+6. NO → Local to component
+   └─ 🔴 useState / useReducer
+```
+
+## Detailed Solutions
+
+### 1. 🔵 Nuqs - URL State Management ⭐ PRIORITY
+
+**Use when:** State should be shareable via URL (filters, pagination, search, tabs)
+
+**Why Nuqs over useSearchParams:**
+- ❌ useSearchParams: 15 lines, no type safety, sync bugs
+- ✅ Nuqs: 3 lines, type-safe, auto-sync
+
+#### When to Use Nuqs
+
+✅ **Filters** - Product filters, table filters
+✅ **Pagination** - Current page, items per page
+✅ **Search** - Search queries
+✅ **Tabs** - Active tab
+✅ **Sorting** - Sort column and direction
+✅ **View modes** - Grid/List view
+✅ **Date ranges** - From/To dates
+✅ **Categories** - Selected category
+
+**Golden Rule:** *Would the user want to share this state via URL?* → Use Nuqs
+
+### Basic Usage
+
+```typescript
+'use client';
+
+import { useQueryState, parseAsString } from 'nuqs';
+
+function SearchBar() {
+  const [search, setSearch] = useQueryState(
+    'search',
+    parseAsString.withDefault('')
+  );
+
+  return (
+    <input
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+}
+```
+
+### Advanced Types
+
+```typescript
+import {
+  useQueryState,
+  parseAsString,
+  parseAsInteger,
+  parseAsBoolean,
+  parseAsStringEnum,
+  parseAsArrayOf,
+} from 'nuqs';
+
+// String
+const [search, setSearch] = useQueryState(
+  'search',
+  parseAsString.withDefault('')
+);
+
+// Integer (pagination)
+const [page, setPage] = useQueryState(
+  'page',
+  parseAsInteger.withDefault(1)
+);
+
+// Boolean (toggle)
+const [isActive, setIsActive] = useQueryState(
+  'active',
+  parseAsBoolean.withDefault(false)
+);
+
+// Enum (tabs)
+const [tab, setTab] = useQueryState(
+  'tab',
+  parseAsStringEnum(['overview', 'settings', 'users']).withDefault('overview')
+);
+
+// Array (multiple filters)
+const [categories, setCategories] = useQueryState(
+  'categories',
+  parseAsArrayOf(parseAsString).withDefault([])
+);
+```
+
+### Multiple Query States
+
+```typescript
+import { useQueryStates, parseAsString, parseAsInteger } from 'nuqs';
+
+function ProductFilters() {
+  const [filters, setFilters] = useQueryStates({
+    search: parseAsString.withDefault(''),
+    category: parseAsString,
+    minPrice: parseAsInteger,
+    maxPrice: parseAsInteger,
+    page: parseAsInteger.withDefault(1),
+  });
+
+  return (
+    <div>
+      <input
+        value={filters.search}
+        onChange={(e) => setFilters({ search: e.target.value })}
+      />
+      <select
+        value={filters.category || ''}
+        onChange={(e) => setFilters({ category: e.target.value })}
+      >
+        {/* categories */}
+      </select>
+      {/* More filters... */}
+    </div>
+  );
+}
+```
+
+### Server-Side Access
+
+```typescript
+// app/products/page.tsx
+import { searchParamsCache } from './search-params';
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  // Parse and validate server-side
+  const { search, category, page } = searchParamsCache.parse(searchParams);
+
+  // Fetch with validated params
+  const products = await getProducts({ search, category, page });
+
+  return <ProductList products={products} />;
+}
+```
+
+```typescript
+// app/products/search-params.ts
+import { createSearchParamsCache, parseAsString, parseAsInteger } from 'nuqs/server';
+
+export const searchParamsCache = createSearchParamsCache({
+  search: parseAsString.withDefault(''),
+  category: parseAsString,
+  page: parseAsInteger.withDefault(1),
+});
+```
+
+#### Benefits
+
+- ✅ **Type-safe** - Full TypeScript support
+- ✅ **Shareable** - Users can share URLs with state
+- ✅ **Bookmarkable** - State persists in URL
+- ✅ **SSR compatible** - Works with Server Components
+- ✅ **Concise** - 3 lines vs 15 lines of useSearchParams
+- ✅ **No sync bugs** - Auto-syncs with URL
+
+**Installation:** `npm install nuqs`
+
+---
+
+### 2. 🟣 TanStack Query - Server Data (Client Components)
+
+**Use when:** Fetching data from API or database in Client Components
+
+**⚠️ IMPORTANT:** For Next.js App Router, prefer **Server Components** when possible:
+- ✅ Server Component: `async function Page() { const data = await fetchData(); }`
+- ✅ Client Component: Use TanStack Query if you need interactivity
+
+#### When to Use TanStack Query
+
+✅ **Client Components needing API data** - When you can't use Server Components
+✅ **Product lists with real-time updates** - API data with cache
+✅ **User profile with refresh** - Server data with auto-refresh
+✅ **Feature flags** - Remote config
+✅ **Any API data in Client Components** - With cache & invalidation
+
+**Golden Rule:** *Server data should NEVER be duplicated in client state (useState, Zustand)*
+**Golden Rule:** *NEVER use useEffect + fetch for server data → Use TanStack Query or Server Component*
+
+#### Basic Usage
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+function ProductList() {
+  // ✅ Single source of truth for server data
+  const { data: products, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+
+  if (isLoading) return <Spinner />;
+  return <div>{products.map(...)}</div>;
+}
+
+function ProductActions() {
+  const queryClient = useQueryClient();
+  
+  const mutation = useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+
+  return <button onClick={() => mutation.mutate(data)}>Create</button>;
+}
+```
+
+#### Anti-Pattern
+
+```typescript
+// ❌ BAD - Duplicating server data in client state
+function UserProfile({ userId }) {
+  const { data } = useQuery(['user', userId], fetchUser);
+  const [user, setUser] = useState(data); // ❌ Unnecessary duplicate
+}
+
+// ✅ GOOD - TanStack Query as single source
+function UserProfile({ userId }) {
+  const { data: user } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+  });
+}
+```
+
+#### Benefits
+
+- ✅ **Automatic caching** - No manual cache management
+- ✅ **Auto invalidation** - Refetch on mutations
+- ✅ **Loading/error states** - Built-in
+- ✅ **Optimistic updates** - Better UX
+- ✅ **Single source of truth** - No state duplication
+
+**Installation:** `npm install @tanstack/react-query`
+
+---
+
+### 3. 🟢 React Hook Form - Form State
+
+**Use when:** Managing form input and validation
+
+### When to Use React Hook Form
+
+✅ **Create forms** - User registration, product creation
+✅ **Edit forms** - Profile editing, settings
+✅ **Multi-step forms** - Wizards, onboarding
+✅ **Complex validation** - Cross-field validation
+✅ **File uploads** - Forms with file inputs
+
+### Basic Usage
+
+```typescript
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CreateUserSchema } from '@/domain/users/models/user';
+
+function UserForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(CreateUserSchema),
+  });
+
+  const onSubmit = async (data) => {
+    await createUser(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register('email')} />
+      {errors.email && <span>{errors.email.message}</span>}
+      
+      <input {...register('name')} />
+      {errors.name && <span>{errors.name.message}</span>}
+      
+      <button type="submit">Create</button>
+    </form>
+  );
+}
+```
+
+#### Benefits
+
+- ✅ **Validation** - Built-in validation with Zod
+- ✅ **Performance** - Minimal re-renders (uncontrolled inputs)
+- ✅ **Error handling** - Easy error display
+- ✅ **Complex forms** - Handles arrays, nested objects
+
+**Installation:** `npm install react-hook-form @hookform/resolvers zod`
+
+---
+
+### 4. 🟡 Jotai / Zustand - Global Client State
+
+**Use when:** Global state shared across the app (temporary, not persisted)
+
+#### When to Use Jotai/Zustand
+
+✅ **UI theme** - Light/dark mode (temporary session)
+✅ **Temporary cart** - Shopping cart (before checkout)
+✅ **Session preferences** - UI preferences not persisted
+✅ **Global UI state** - Sidebar open, notifications
+
+**Rule:** Prefer atomic stores rather than centralized mega-store
+
+#### Jotai (Atomic)
+
+```typescript
+import { atom, useAtom } from 'jotai';
+
+// ✅ Atomic - each atom is independent
+const cartAtom = atom([]);
+const themeAtom = atom('light');
+
+function Cart() {
+  const [items, setItems] = useAtom(cartAtom);
+  return <div>{items.length} items</div>;
+}
+```
+
+#### Zustand (Store-based)
+
+```typescript
+import { create } from 'zustand';
+
+// ✅ Slice-focused store
+const useCartStore = create((set) => ({
+  items: [],
+  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+  clearCart: () => set({ items: [] }),
+}));
+
+function Cart() {
+  const items = useCartStore((state) => state.items);
+  const addItem = useCartStore((state) => state.addItem);
+  return <div>{items.length} items</div>;
+}
+```
+
+**Installation:**
+- Jotai: `npm install jotai`
+- Zustand: `npm install zustand`
+
+---
+
+### 5. 🟠 Jotai with Storage / Zustand Persist - Persisted Global State
+
+**Use when:** Global state that persists between sessions
+
+#### When to Use Persisted State
+
+✅ **Dark mode** - User preference across sessions
+✅ **Language** - User language setting
+✅ **Sort/filter preferences** - Persisted filters
+✅ **User settings** - App configuration
+
+**Rule:** Handle SSR rehydration properly (avoid hydration mismatches)
+
+#### Jotai with Storage
+
+```typescript
+import { atomWithStorage } from 'jotai/utils';
+
+// ✅ Persisted in localStorage
+const darkModeAtom = atomWithStorage('darkMode', false);
+
+function ThemeToggle() {
+  const [isDark, setIsDark] = useAtom(darkModeAtom);
+  return <button onClick={() => setIsDark(!isDark)}>Toggle</button>;
+}
+```
+
+#### Zustand Persist
+
+```typescript
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+const useSettingsStore = create(
+  persist(
+    (set) => ({
+      theme: 'light',
+      setTheme: (theme) => set({ theme }),
+    }),
+    {
+      name: 'user-settings',
+      // For SSR: handle rehydration
+      skipHydration: true, // or custom getStorage
+    }
+  )
+);
+```
+
+**SSR Considerations:**
+- Use `skipHydration: true` or conditional `getStorage`
+- Avoid hydration mismatches (client/server different values)
+
+---
+
+### 6. 🟤 React Context - Shared State (Few Components)
+
+**Use when:** State shared between parent and few close children
+
+#### When to Use Context
+
+✅ **Multi-step form** - Shared data across steps
+✅ **Wizard** - Shared state in 3+ nested levels
+✅ **Feature-specific** - Limited scope (not app-wide)
+
+**Rule:** 
+- < 3 levels → Props drilling is better
+- 3+ levels → Context is acceptable
+- Watch out for unnecessary re-renders
+
+#### Basic Usage
+
+```typescript
+import { createContext, useContext, useState } from 'react';
+
+type FormContextType = {
+  formData: FormData;
+  setFormData: (data: FormData) => void;
+};
+
+const FormContext = createContext<FormContextType | null>(null);
+
+function FormProvider({ children }) {
+  const [formData, setFormData] = useState({});
+  return (
+    <FormContext.Provider value={{ formData, setFormData }}>
+      {children}
+    </FormContext.Provider>
+  );
+}
+
+function useFormContext() {
+  const context = useContext(FormContext);
+  if (!context) throw new Error('useFormContext must be within FormProvider');
+  return context;
+}
+```
+
+**Anti-Pattern:**
+- ❌ Creating Context "just in case" when useState would suffice
+- ❌ App-wide Context that causes unnecessary re-renders
+
+---
+
+### 7. 🔴 useState / useReducer - Local UI State
+
+**Use when:** State is purely local and not shareable
+
+### When to Use useState
+
+✅ **Modals** - Open/closed state
+✅ **Toggles** - Show/hide elements
+✅ **Hover states** - UI feedback
+✅ **Loading states** - Local loading indicators
+✅ **Form inputs** (simple) - Single input without validation
+
+#### Basic Usage
+
+```typescript
+'use client';
+
+import { useState } from 'react';
+
+function Modal() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>Open</button>
+      {isOpen && (
+        <div className="modal">
+          {/* Modal content */}
+          <button onClick={() => setIsOpen(false)}>Close</button>
+        </div>
+      )}
+    </>
+  );
+}
+```
+
+#### useReducer for Complex State
+
+```typescript
+import { useReducer } from 'react';
+
+function complexReducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT': return { count: state.count + 1 };
+    case 'DECREMENT': return { count: state.count - 1 };
+    default: return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(complexReducer, { count: 0 });
+  return <button onClick={() => dispatch({ type: 'INCREMENT' })}>{state.count}</button>;
+}
+```
+
+**Rule:** Start with useState. Use useReducer only if state logic is complex.
+
+---
+
+## Comparison Table
+
+| Use Case | Tool | Reason |
+|----------|------|--------|
+| Search bar | 🔵 Nuqs | Shareable, bookmarkable |
+| Product filters | 🔵 Nuqs | User wants to share filtered view |
+| Pagination | 🔵 Nuqs | User wants to share specific page |
+| Active tab | 🔵 Nuqs | Deep linking to specific tab |
+| Sort column | 🔵 Nuqs | Shareable sorting state |
+| Product list (API) | 🟣 TanStack Query | Server data with cache |
+| User profile (API) | 🟣 TanStack Query | Auto-refresh, invalidation |
+| Create user form | 🟢 RHF | Form with validation |
+| Edit profile | 🟢 RHF | Complex form with validation |
+| Login form | 🟢 RHF | Form with error handling |
+| Dark mode (persisted) | 🟠 Jotai Storage | Persisted preference |
+| Language (persisted) | 🟠 Zustand Persist | User setting |
+| Cart (temporary) | 🟡 Jotai/Zustand | Global temporary state |
+| Theme (session) | 🟡 Jotai/Zustand | Global UI state |
+| Multi-step form | 🟤 Context | Shared across steps |
+| Modal open/close | 🔴 useState | Pure UI state |
+| Dropdown open | 🔴 useState | Pure UI state |
+| Loading spinner | 🔴 useState | Local loading state |
+| Hover effect | 🔴 useState | Pure UI interaction |
+
+## Real-World Examples
+
+### Example 1: Product Listing with Filters
+
+```typescript
+'use client';
+
+import { useQueryStates, parseAsString, parseAsInteger } from 'nuqs';
+
+export function ProductFilters() {
+  const [filters, setFilters] = useQueryStates({
+    search: parseAsString.withDefault(''),
+    category: parseAsString,
+    minPrice: parseAsInteger,
+    maxPrice: parseAsInteger,
+    sort: parseAsString.withDefault('name'),
+    page: parseAsInteger.withDefault(1),
+  });
+
+  return (
+    <div className="filters">
+      {/* Search */}
+      <input
+        type="search"
+        value={filters.search}
+        onChange={(e) => setFilters({ search: e.target.value, page: 1 })}
+        placeholder="Search products..."
+      />
+
+      {/* Category */}
+      <select
+        value={filters.category || ''}
+        onChange={(e) => setFilters({ category: e.target.value, page: 1 })}
+      >
+        <option value="">All categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+      </select>
+
+      {/* Price range */}
+      <input
+        type="number"
+        placeholder="Min price"
+        value={filters.minPrice || ''}
+        onChange={(e) => setFilters({ minPrice: parseInt(e.target.value) })}
+      />
+      <input
+        type="number"
+        placeholder="Max price"
+        value={filters.maxPrice || ''}
+        onChange={(e) => setFilters({ maxPrice: parseInt(e.target.value) })}
+      />
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={filters.page}
+        onPageChange={(page) => setFilters({ page })}
+      />
+    </div>
+  );
+}
+```
+
+### Example 2: Tabs with Deep Linking
+
+```typescript
+'use client';
+
+import { useQueryState, parseAsStringEnum } from 'nuqs';
+
+const tabs = ['overview', 'settings', 'billing'] as const;
+
+export function ProfileTabs() {
+  const [activeTab, setActiveTab] = useQueryState(
+    'tab',
+    parseAsStringEnum(tabs).withDefault('overview')
+  );
+
+  return (
+    <div>
+      <div className="tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={activeTab === tab ? 'active' : ''}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <div className="tab-content">
+        {activeTab === 'overview' && <Overview />}
+        {activeTab === 'settings' && <Settings />}
+        {activeTab === 'billing' && <Billing />}
+      </div>
+    </div>
+  );
+}
+```
+
+### Example 3: Combined (Nuqs + RHF)
+
+```typescript
+'use client';
+
+import { useQueryState, parseAsInteger } from 'nuqs';
+import { useForm } from 'react-hook-form';
+
+export function UserManagement() {
+  // URL state for pagination (shareable)
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(1)
+  );
+
+  // Form state for creating user (not shareable)
+  const { register, handleSubmit } = useForm();
+
+  const onCreateUser = async (data) => {
+    await createUser(data);
+    // Refresh list...
+  };
+
+  return (
+    <div>
+      {/* Create form - RHF */}
+      <form onSubmit={handleSubmit(onCreateUser)}>
+        <input {...register('email')} />
+        <input {...register('name')} />
+        <button type="submit">Create User</button>
+      </form>
+
+      {/* User list with pagination - Nuqs */}
+      <UserList page={page} />
+      <Pagination page={page} onPageChange={setPage} />
+    </div>
+  );
+}
+```
+
+## Anti-Patterns to Avoid
+
+### ❌ Creating Context "just in case"
+
+```typescript
+// ❌ Bad - Unnecessary Context
+const ThemeContext = createContext();
+// When useState would suffice
+
+// ✅ Good - useState for local state
+const [theme, setTheme] = useState('light');
+```
+
+### ❌ Centralized mega-store
+
+```typescript
+// ❌ Bad - Everything in one store
+const useAppStore = create((set) => ({
+  user: {},
+  products: [],
+  cart: [],
+  theme: 'light',
+  // ... 50 more properties
+}));
+
+// ✅ Good - Atomic stores
+const useUserStore = create(...);
+const useCartStore = create(...);
+const themeAtom = atom('light');
+```
+
+### ❌ Duplicating server data in client state
+
+```typescript
+// ❌ Bad - Duplicating TanStack Query data
+const { data } = useQuery(['products'], fetchProducts);
+const [products, setProducts] = useState(data); // ❌ Unnecessary
+
+// ✅ Good - TanStack Query as single source
+const { data: products } = useQuery(['products'], fetchProducts);
+```
+
+### ❌ useState + useEffect for server data
+
+```typescript
+// ❌ Bad - Manual API state management with useEffect
+const [products, setProducts] = useState([]);
+const [loading, setLoading] = useState(false);
+useEffect(() => {
+  setLoading(true);
+  fetchProducts().then(setProducts).finally(() => setLoading(false));
+}, []);
+
+// ✅ Good Option 1 - Next.js App Router Server Component (preferred)
+// app/products/page.tsx (Server Component - no 'use client')
+export default async function ProductsPage() {
+  const products = await getProducts(); // Direct fetch, no useEffect
+  return <ProductList products={products} />;
+}
+
+// ✅ Good Option 2 - TanStack Query (for Client Components)
+'use client';
+import { useQuery } from '@tanstack/react-query';
+
+function ProductList() {
+  const { data: products, isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+  // ...
+}
+
+// ✅ Good Option 3 - React 19 'use' hook (for Client Components)
+'use client';
+import { use } from 'react';
+
+function ProductList({ productsPromise }: { productsPromise: Promise<Product[]> }) {
+  const products = use(productsPromise); // Suspense-enabled
+  return <div>{products.map(...)}</div>;
+}
+```
+
+**Priority order for Next.js App Router:**
+1. **Server Component** (async/await) - Best performance, no client JS
+2. **TanStack Query** - If you need Client Component features (interactivity, real-time updates)
+3. **React 'use' hook** - If you have a Promise from Server Component
+
+### ❌ Context for local UI
+
+```typescript
+// ❌ Bad - Context for purely local state
+const ModalContext = createContext();
+
+// ✅ Good - useState for local UI
+const [isOpen, setIsOpen] = useState(false);
+```
+
+### ❌ Manual localStorage management
+
+```typescript
+// ❌ Bad - Manual localStorage
+const [theme, setTheme] = useState(() => localStorage.getItem('theme'));
+useEffect(() => {
+  localStorage.setItem('theme', theme);
+}, [theme]);
+
+// ✅ Good - Use atomWithStorage or persist
+const darkModeAtom = atomWithStorage('darkMode', false);
+```
+
+### ❌ Manual URL state management
+
+```typescript
+// ❌ Bad - Manual useSearchParams (15 lines, bugs)
+const [searchParams, setSearchParams] = useSearchParams();
+const [search, setSearch] = useState('');
+useEffect(() => {
+  const q = searchParams.get('search');
+  if (q !== search || !q) setSearch(q);
+}, [searchParams]);
+
+// ✅ Good - Use nuqs (3 lines, type-safe)
+const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''));
+```
+
+### ❌ Nuqs for form inputs
+
+```typescript
+// ❌ Bad - Don't put form data in URL
+const [email, setEmail] = useQueryState('email');
+const [password, setPassword] = useQueryState('password');
+
+// ✅ Good - Use React Hook Form
+const { register } = useForm();
+```
+
+### ❌ Nuqs for sensitive data
+
+```typescript
+// ❌ Bad - Sensitive data in URL
+const [creditCard, setCreditCard] = useQueryState('cc');
+
+// ✅ Good - Keep sensitive data local
+const { register } = useForm();
+```
+
+### ❌ Ignoring SSR hydration issues
+
+```typescript
+// ❌ Bad - Hydration mismatch
+const useStore = create(
+  persist((set) => ({ theme: 'dark' }), { name: 'theme' })
+);
+
+// ✅ Good - Handle SSR properly
+const useStore = create(
+  persist(
+    (set) => ({ theme: 'dark' }),
+    { name: 'theme', skipHydration: true }
+  )
+);
+```
+
+## Decision Checklist
+
+Before choosing a solution, ask these questions in order:
+
+1. **Is this state shareable via URL?** (filters, pagination, search)
+   → 🔵 **Nuqs**
+
+2. **Is this data from the server?** (API, database)
+   → 🟣 **TanStack Query** (single source of truth)
+
+3. **Is this a form?** (login, create, edit)
+   → 🟢 **React Hook Form**
+
+4. **Is this global to the app?**
+   - Temporary session → 🟡 **Jotai / Zustand**
+   - Persisted (localStorage) → 🟠 **Jotai Storage / Zustand Persist** (handle SSR)
+
+5. **Shared with few components?** (2-3 levels)
+   - < 3 levels → **Props drilling**
+   - 3+ levels → 🟤 **React Context** (watch re-renders)
+
+6. **Local to component?**
+   → 🔴 **useState / useReducer**
+
+## Order of Increasing Complexity
+
+1. `useState` ← **Start here**
+2. Props drilling
+3. `React.Context`
+4. `Nuqs` (URL state)
+5. `Jotai` / `Zustand`
+6. `TanStack Query` + state management
+7. Advanced combinations
+
+**Final Rule:** Stay at the lowest level possible as long as it suffices. Only extend when the need arises.
+
+## Visual Summary
+
+```
+useState          → Local UI (modal, toggle)
+Props drilling    → Few components (< 3 levels)
+Context           → 3+ levels (multi-step form, watch re-renders)
+Nuqs              → URL state (filters, pagination, shareable ⭐)
+Jotai/Zustand     → Global client (cart, theme, temporary)
++ Storage         → + Persisted (dark mode, preferences, handle SSR)
+TanStack Query    → Server data (API, cache, single source ⭐)
+React Hook Form   → Forms (login, checkout, validation ⭐)
+```
+
+## Installation
+
+```bash
+# Nuqs (URL state)
+npm install nuqs
+
+# TanStack Query (server data)
+npm install @tanstack/react-query
+
+# React Hook Form (forms)
+npm install react-hook-form @hookform/resolvers zod
+
+# Jotai (atomic state)
+npm install jotai
+
+# Zustand (store-based state)
+npm install zustand
+```
+
+## Resources
+
+- [Nuqs Documentation](https://nuqs.47ng.com/) - URL state management
+- [TanStack Query Docs](https://tanstack.com/query/latest) - Server state
+- [React Hook Form](https://react-hook-form.com/) - Forms
+- [Jotai](https://jotai.org/) - Atomic state
+- [Zustand](https://zustand-demo.pmnd.rs/) - Store-based state
+
+## Summary
+
+**Golden Rules:**
+
+1. **Shareable via URL?** → 🔵 **Nuqs** (filters, pagination, search) ⭐
+2. **Server data?** → 🟣 **TanStack Query** (single source of truth) ⭐
+3. **Form?** → 🟢 **React Hook Form** (validation) ⭐
+4. **Global temporary?** → 🟡 **Jotai/Zustand**
+5. **Global persisted?** → 🟠 **Jotai Storage/Zustand Persist** (handle SSR)
+6. **Few components?** → 🟤 **Context** (watch re-renders) or Props drilling
+7. **Local UI?** → 🔴 **useState** (default choice)
+
+**Priority order:** Local by default → Escalate only when needed → Nuqs for shareable state
+
+This ensures:
+- ✅ Better UX (shareable states with Nuqs)
+- ✅ Type safety (Nuqs + Zod + TypeScript)
+- ✅ Cleaner code (right tool for the job)
+- ✅ No over-engineering (start simple)
+- ✅ Single source of truth (TanStack Query for server data)

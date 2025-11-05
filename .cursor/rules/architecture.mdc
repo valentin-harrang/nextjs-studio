@@ -1,0 +1,50 @@
+---
+description: Clean Architecture core principles and layer responsibilities
+globs:
+alwaysApply: true
+---
+
+# Clean Architecture - Core Principles
+
+## Fundamental Rules
+
+1. **Domain Independence**: Business logic MUST be framework-independent
+2. **Dependency Inversion**: Domain defines interfaces (ports), infrastructure implements them
+3. **Separation of Concerns**: Each layer has a single responsibility
+4. **Testability**: Business logic must be easily testable without external dependencies
+
+## Layer Responsibilities
+
+### Domain Layer (`src/domain/`)
+- ✅ Pure business logic (calculations, validations, rules)
+- ✅ Entity models and Zod schemas
+- ✅ Interfaces (ports) for external dependencies
+- ✅ Use cases (services) orchestrating business logic
+- ❌ NO Next.js, React, or framework imports
+- ❌ NO direct database or API calls
+
+### Infrastructure Layer (`src/infra/`)
+- ✅ Implement ports defined in domain
+- ✅ Database repositories (Prisma, Drizzle)
+- ✅ External API clients
+- ✅ Email/Payment providers
+
+### App Layer (`src/app/`)
+- ✅ HTTP entry points (Route Handlers)
+- ✅ Minimal controllers
+- ❌ NO business logic
+
+### Components Layer (`src/components/`)
+- ✅ Server Components for display
+- ✅ Client Components for interactivity
+- ✅ Use domain types
+
+## Dependency Flow
+
+```
+Domain (core) ← Infrastructure (adapters) ← App (HTTP)
+     ↑
+Components (UI)
+```
+
+**Key Rule:** Domain never imports from outer layers.
