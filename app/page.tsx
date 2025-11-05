@@ -1,7 +1,16 @@
 // Home Page SSG
-import { MessageSquare, Lightbulb, Info, Sparkles } from "lucide-react";
+import {
+  MessageSquare,
+  Lightbulb,
+  Info,
+  Sparkles,
+  BookOpen,
+} from "lucide-react";
 import { PageContainer } from "@/app/components/shared/page-container";
 import { FeatureCard } from "@/app/components/shared/feature-card";
+import { Card } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import Link from "next/link";
 
 const features = [
   {
@@ -63,6 +72,69 @@ export default function Home() {
           />
         ))}
       </div>
+
+      {/* Section explicative sur les modes de rendu */}
+      <Card className="mt-12 p-8 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <BookOpen className="size-6 text-slate-700 dark:text-slate-300" />
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Comprendre les Modes de Rendu
+            </h2>
+          </div>
+          <p className="text-muted-foreground">
+            Des explications simples et concrètes pour comprendre CSR, SSR et
+            SSG
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <Link href="/csr">
+            <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
+              <div className="text-center">
+                <div className="text-3xl mb-2">💻</div>
+                <h3 className="font-semibold mb-2">CSR</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Client-Side Rendering
+                </p>
+                <Button variant="outline" size="sm" className="w-full">
+                  Découvrir
+                </Button>
+              </div>
+            </Card>
+          </Link>
+
+          <Link href="/ssr">
+            <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+              <div className="text-center">
+                <div className="text-3xl mb-2">🖥️</div>
+                <h3 className="font-semibold mb-2">SSR</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Server-Side Rendering
+                </p>
+                <Button variant="outline" size="sm" className="w-full">
+                  Découvrir
+                </Button>
+              </div>
+            </Card>
+          </Link>
+
+          <Link href="/ssg">
+            <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
+              <div className="text-center">
+                <div className="text-3xl mb-2">📄</div>
+                <h3 className="font-semibold mb-2">SSG</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Static Site Generation
+                </p>
+                <Button variant="outline" size="sm" className="w-full">
+                  Découvrir
+                </Button>
+              </div>
+            </Card>
+          </Link>
+        </div>
+      </Card>
 
       <div className="mt-12 text-center">
         <p className="text-sm text-muted-foreground">
