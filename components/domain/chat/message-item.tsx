@@ -42,7 +42,9 @@ export function MessageItem({
     <div
       className={cn(
         "mb-4 p-4 rounded-lg",
-        isUser ? "bg-blue-50 text-blue-900" : "bg-gray-50 text-gray-900"
+        isUser
+          ? "bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-100"
+          : "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
       )}
     >
       <div className="font-semibold text-sm mb-2">

@@ -217,27 +217,29 @@ export default function About() {
       </Card>
 
       <h2 className="text-2xl font-bold mb-4">🚀 Projet :</h2>
-      <p className="text-gray-700 mb-4">
+      <p className="text-foreground mb-4">
         AI Assistant Hub est un petit site Next.js proposant plusieurs
         fonctionnalités IA.
       </p>
 
       <h2 className="text-2xl font-bold mb-4">🎯 Objectif :</h2>
-      <p className="text-gray-700 mb-4">
+      <p className="text-foreground mb-4">
         Créer un petit site Next.js proposant plusieurs fonctionnalités IA :
       </p>
 
-      <ul className="list-disc list-inside text-gray-700">
-        <li>Page d’accueil statique (SSG)</li>
+      <ul className="list-disc list-inside text-foreground">
+        <li>Page d&apos;accueil statique (SSG)</li>
         <li>Chatbot interactif (CSR)</li>
-        <li>Générateur d’idées IA (SSR)</li>
+        <li>Générateur d&apos;idées IA (SSR)</li>
         <li>API Route connectée à un modèle IA (OpenAI, Groq ou local)</li>
       </ul>
 
       <h2 className="text-2xl font-bold my-4">👉 Le but :</h2>
-      <ul className="list-disc list-inside text-gray-700">
+      <ul className="list-disc list-inside text-foreground">
         <li>Apprendre les fondamentaux de Next.js (App Router, rendu, API)</li>
-        <li>Découvrir l’intégration d’un modèle IA via Vercel AI SDK</li>
+        <li>
+          Découvrir l&apos;intégration d&apos;un modèle IA via Vercel AI SDK
+        </li>
         <li>Obtenir un projet concret et valorisable sur un portfolio.</li>
       </ul>
     </PageContainer>
