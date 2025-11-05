@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { Footer } from "@/components/shared/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,12 @@ export default function RootLayout({
           <div className="fixed top-4 right-4 z-50">
             <ThemeToggle />
           </div>
-          <QueryProvider>{children}</QueryProvider>
+          <div className="flex min-h-screen flex-col">
+            <div className="flex-1">
+              <QueryProvider>{children}</QueryProvider>
+            </div>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

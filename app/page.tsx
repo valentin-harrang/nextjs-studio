@@ -53,9 +53,9 @@ export default function Home() {
             AI Assistant Hub
           </h1>
         </div>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg max-w-2xl mx-auto">
           Découvrez l&apos;intégration de l&apos;IA avec Next.js et les
-          différents modes de rendu : CSR, SSR, SSG et ISR
+          différents modes de rendu :<br /> CSR, SSR, SSG et ISR
         </p>
       </div>
 
@@ -181,7 +181,7 @@ export default function Home() {
       <div className="mt-12 text-center">
         <p className="text-sm text-muted-foreground">
           Développé avec Next.js 16, React 19, TypeScript, Tailwind CSS et
-          ShadCn UI
+          ShadCn UI ⚡️
         </p>
       </div>
     </PageContainer>
