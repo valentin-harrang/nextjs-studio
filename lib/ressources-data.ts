@@ -341,7 +341,12 @@ export const ressources: Ressource[] = [
       "Personnalisable",
       "Plugins",
     ],
-    color: "cyan",
+    color: {
+      bg: "bg-cyan-100",
+      bgDark: "dark:bg-cyan-900/30",
+      text: "text-cyan-600",
+      textDark: "dark:text-cyan-400",
+    },
   },
   {
     slug: "next-intl",
@@ -366,7 +371,12 @@ export const ressources: Ressource[] = [
       "Routage par langue",
       "Lazy loading des traductions",
     ],
-    color: "blue",
+    color: {
+      bg: "bg-blue-100",
+      bgDark: "dark:bg-blue-900/30",
+      text: "text-blue-600",
+      textDark: "dark:text-blue-400",
+    },
   },
   {
     slug: "usehooks-ts",
@@ -638,9 +648,6 @@ export function getRessourceBySlug(slug: string): Ressource | undefined {
   return ressources.find((r) => r.slug === slug);
 }
 
-export function getRessourcesByCategory(
-  category: string
-): Ressource[] {
+export function getRessourcesByCategory(category: string): Ressource[] {
   return ressources.filter((r) => r.category === category);
 }
-
