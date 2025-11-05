@@ -12,7 +12,7 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        "mx-auto max-w-4xl p-6 h-full",
+        "mx-auto max-w-5xl p-6 h-full",
         centered && "text-center flex flex-col items-center justify-center"
       )}
     >
