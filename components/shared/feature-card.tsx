@@ -30,7 +30,7 @@ export function FeatureCard({
           <div className="flex items-start justify-between mb-4">
             <div
               className={cn(
-                "p-3 rounded-lg bg-gradient-to-br text-white",
+                "p-3 rounded-lg bg-gradient-to-br text-white ",
                 gradient
               )}
             >
