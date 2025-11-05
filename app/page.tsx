@@ -6,6 +6,7 @@ import {
   Sparkles,
   BookOpen,
   GraduationCap,
+  Target,
 } from "lucide-react";
 import { PageContainer } from "@/components/shared/page-container";
 import { FeatureCard } from "@/components/shared/feature-card";
@@ -31,6 +32,15 @@ const features = [
     badge: "SSR",
     badgeVariant: "secondary" as const,
     gradient: "from-amber-500 to-orange-500",
+  },
+  {
+    title: "Fun Fact du Jour",
+    description: "Découvrez un fun fact amusant généré par l'IA",
+    href: "/fun-fact",
+    icon: Target,
+    badge: "CSR",
+    badgeVariant: "default" as const,
+    gradient: "from-green-500 to-emerald-500",
   },
   {
     title: "À Propos",
@@ -59,7 +69,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {features.map((feature) => (
           <FeatureCard
             key={feature.href}
