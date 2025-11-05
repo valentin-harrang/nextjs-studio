@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { UIMessage } from "@ai-sdk/react";
 import { MessageItem } from "./message-item";
-import { Card } from "@/app/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 interface MessageListProps {
   messages: UIMessage[];

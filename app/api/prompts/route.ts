@@ -1,4 +1,4 @@
-import { getPrompts } from "@/app/lib/get-prompts";
+import { getPrompts } from "@/lib/get-prompts";
 import { NextResponse } from "next/server";
 
 export async function GET() {

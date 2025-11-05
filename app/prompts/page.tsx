@@ -2,19 +2,19 @@
 // Cette page est rendue côté serveur à chaque requête
 // Avantages: SEO optimal, données toujours fraîches, pas de JS client nécessaire
 
-import { PageHeader } from "@/app/components/shared/page-header";
-import { MarkdownContent } from "@/app/components/shared/markdown-content";
+import { PageHeader } from "@/components/shared/page-header";
+import { MarkdownContent } from "@/components/shared/markdown-content";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/app/components/ui/accordion";
+} from "@/components/ui/accordion";
 import { Lightbulb, Brain, Info, CheckCircle2, XCircle } from "lucide-react";
-import { getPrompts } from "@/app/lib/get-prompts";
-import { GoHome } from "../components/shared/go-home";
+import { getPrompts } from "@/lib/get-prompts";
+import { GoHome } from "@/components/shared/go-home";
 import { RefreshButton } from "./refresh-button";
-import { Card } from "@/app/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 // 🎓 Force le rendu dynamique (SSR) à chaque requête
 // Sans cette ligne, Next.js pourrait mettre en cache la page

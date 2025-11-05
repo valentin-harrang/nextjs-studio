@@ -250,15 +250,15 @@ npm run lint
 - ✅ Imports directs uniquement :
   ```typescript
   // ✅ Good - Tous les composants (kebab-case path)
-  import { Button } from "@/app/components/ui/button";
-  import { PageContainer } from "@/app/components/shared/page-container";
-  import { ChatForm } from "@/app/components/domain/chat/chat-form";
+  import { Button } from "@/components/ui/button";
+  import { PageContainer } from "@/components/shared/page-container";
+  import { ChatForm } from "@/components/domain/chat/chat-form";
   
   // ❌ Bad - Barrel export
-  import { Button } from "@/app/components/ui";
+  import { Button } from "@/components/ui";
   
   // ❌ Bad - Default import
-  import Button from "@/app/components/ui/button";
+  import Button from "@/components/ui/button";
   ```
 - ✅ Ordre : external → internal (`@/`) → relative (`./`)
 - ✅ Utiliser `type` pour les imports de types uniquement

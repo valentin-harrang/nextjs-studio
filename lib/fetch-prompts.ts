@@ -1,4 +1,4 @@
-import type { PromptsResponse } from "@/app/lib/get-prompts";
+import type { PromptsResponse } from "@/lib/get-prompts";
 
 export async function fetchPrompts(): Promise<PromptsResponse> {
   const response = await fetch("/api/prompts", {

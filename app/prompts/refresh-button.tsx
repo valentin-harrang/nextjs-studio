@@ -4,7 +4,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw } from "lucide-react";
 
 export function RefreshButton() {

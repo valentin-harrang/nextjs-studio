@@ -4,18 +4,18 @@
 import { useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
 import { TextStreamChatTransport } from "ai";
-import { PageContainer } from "@/app/components/shared/page-container";
-import { PageHeader } from "@/app/components/shared/page-header";
-import { MessageList } from "@/app/components/domain/chat/message-list";
-import { ChatForm } from "@/app/components/domain/chat/chat-form";
-import { GoHome } from "@/app/components/shared/go-home";
-import { Card } from "@/app/components/ui/card";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeader } from "@/components/shared/page-header";
+import { MessageList } from "@/components/domain/chat/message-list";
+import { ChatForm } from "@/components/domain/chat/chat-form";
+import { GoHome } from "@/components/shared/go-home";
+import { Card } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/app/components/ui/accordion";
+} from "@/components/ui/accordion";
 import { CheckCircle2, XCircle, Info } from "lucide-react";
 
 export default function ChatPage() {

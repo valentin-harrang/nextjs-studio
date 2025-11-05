@@ -6,10 +6,10 @@ import {
   Sparkles,
   BookOpen,
 } from "lucide-react";
-import { PageContainer } from "@/app/components/shared/page-container";
-import { FeatureCard } from "@/app/components/shared/feature-card";
-import { Card } from "@/app/components/ui/card";
-import { Button } from "@/app/components/ui/button";
+import { PageContainer } from "@/components/shared/page-container";
+import { FeatureCard } from "@/components/shared/feature-card";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const features = [

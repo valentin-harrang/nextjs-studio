@@ -1,8 +1,8 @@
 // 🎓 Page explicative SSG - Vulgarisée pour les étudiants
-import { PageContainer } from "@/app/components/shared/page-container";
-import { PageHeader } from "@/app/components/shared/page-header";
-import { GoHome } from "@/app/components/shared/go-home";
-import { Card } from "@/app/components/ui/card";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeader } from "@/components/shared/page-header";
+import { GoHome } from "@/components/shared/go-home";
+import { Card } from "@/components/ui/card";
 import { CheckCircle2, XCircle, FileText, Zap } from "lucide-react";
 
 export default function SSGPage() {

@@ -2,7 +2,7 @@
 import { createGroq } from "@ai-sdk/groq";
 import { streamText, convertToModelMessages } from "ai";
 import { NextRequest, NextResponse } from "next/server";
-import { AI_MODEL } from "@/app/constants/ai";
+import { AI_MODEL } from "@/constants/ai";
 
 function getGroqClient() {
   const apiKey = process.env.GROQ_API_KEY;

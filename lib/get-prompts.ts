@@ -1,7 +1,7 @@
 import { createGroq } from "@ai-sdk/groq";
 import { generateText } from "ai";
-import { parseResponseWithReasoning } from "@/app/lib/filter-reasoning";
-import { AI_MODEL } from "@/app/constants/ai";
+import { parseResponseWithReasoning } from "@/lib/filter-reasoning";
+import { AI_MODEL } from "@/constants/ai";
 
 function getGroqClient() {
   const apiKey = process.env.GROQ_API_KEY;

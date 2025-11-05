@@ -1,13 +1,13 @@
-import { PageContainer } from "@/app/components/shared/page-container";
-import { PageHeader } from "@/app/components/shared/page-header";
-import { GoHome } from "../components/shared/go-home";
-import { Card } from "@/app/components/ui/card";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeader } from "@/components/shared/page-header";
+import { GoHome } from "@/components/shared/go-home";
+import { Card } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/app/components/ui/accordion";
+} from "@/components/ui/accordion";
 import { Info, CheckCircle2, XCircle } from "lucide-react";
 
 export const metadata = {

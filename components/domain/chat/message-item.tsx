@@ -1,7 +1,7 @@
 import type { UIMessage } from "@ai-sdk/react";
-import { cn } from "@/app/lib/utils";
-import { parseResponseWithReasoning } from "@/app/lib/filter-reasoning";
-import { MarkdownContent } from "@/app/components/shared/markdown-content";
+import { cn } from "@/lib/utils";
+import { parseResponseWithReasoning } from "@/lib/filter-reasoning";
+import { MarkdownContent } from "@/components/shared/markdown-content";
 
 interface MessageItemProps {
   message: UIMessage;
