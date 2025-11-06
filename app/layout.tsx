@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Assistant Hub",
+  title: "Next.js Studio",
   description:
     "Découvrez trois façons d'intégrer l'IA avec Next.js : CSR, SSR et SSG",
 };

@@ -22,7 +22,7 @@ export default function About() {
       <PageHeader
         title="À propos (SSG)"
         emoji="🤖"
-        description="Découvrez le projet AI Assistant Hub. Cette page est générée statiquement (SSG) au build."
+        description="Découvrez le projet Next.js Studio. Cette page est générée statiquement (SSG) au build."
         className="my-12"
       />
 
@@ -218,7 +218,7 @@ export default function About() {
 
       <h2 className="text-2xl font-bold mb-4">🚀 Projet :</h2>
       <p className="text-foreground mb-4">
-        AI Assistant Hub est un petit site Next.js proposant plusieurs
+        Next.js Studio est un petit site Next.js proposant plusieurs
         fonctionnalités IA.
       </p>
 

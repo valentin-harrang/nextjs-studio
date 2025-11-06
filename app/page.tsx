@@ -77,7 +77,7 @@ export default function Home() {
         <div className="flex items-center justify-center gap-3 mb-3">
           <Sparkles className="size-8 text-blue-500" />
           <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            AI Assistant Hub
+            Next.js Studio
           </h1>
         </div>
         <p className="text-base mx-auto text-muted-foreground">

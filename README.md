@@ -1,4 +1,4 @@
-# 🤖 AI Assistant Hub
+# 🚀 Next.js Studio
 
 Projet Next.js démontrant l'intégration de l'IA avec le **AI SDK** de Vercel et les différents modes de rendu de Next.js.
 
@@ -38,7 +38,7 @@ Projet Next.js démontrant l'intégration de l'IA avec le **AI SDK** de Vercel e
 ```bash
 # Cloner le projet
 git clone <repository-url>
-cd ai-assistant-hub
+cd nextjs-studio
 
 # Installer les dépendances
 npm install
