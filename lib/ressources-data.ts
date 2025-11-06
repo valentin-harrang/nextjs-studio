@@ -171,6 +171,38 @@ export const ressources: Ressource[] = [
     },
   },
   {
+    slug: "tanstack-virtual",
+    name: "TanStack Virtual",
+    category: "Utilities",
+    icon: Layers,
+    description: "Virtualisation headless pour listes et grilles performantes",
+    longDescription:
+      "TanStack Virtual est une bibliothèque headless pour virtualiser de longues listes d'éléments. Elle améliore les performances en ne rendant que les éléments visibles dans le DOM, permettant un défilement fluide même avec des milliers d'éléments.",
+    website: "https://tanstack.com/virtual",
+    npmPackage: "@tanstack/react-virtual",
+    useCases: [
+      "Listes avec des milliers d'éléments",
+      "Grilles virtuelles performantes",
+      "Défilement fluide sur grandes listes",
+      "Optimisation des performances de rendu",
+      "Virtualisation de colonnes et lignes",
+    ],
+    features: [
+      "Headless (contrôle total du rendu)",
+      "Virtualisation de listes, colonnes et grilles",
+      "Modes de mesure fixes, variables et dynamiques",
+      "Contrôle impératif du défilement",
+      "Multi-frameworks (React, Vue, Solid, Svelte)",
+      "TypeScript complet",
+    ],
+    color: {
+      bg: "bg-teal-100",
+      bgDark: "dark:bg-teal-900/30",
+      text: "text-teal-600",
+      textDark: "dark:text-teal-400",
+    },
+  },
+  {
     slug: "radix-ui",
     name: "Radix UI",
     category: "UI Components",
