@@ -13,25 +13,28 @@ export const presentationSlides: Slide[] = [
     id: "intro",
     title: "Présentation et tour de table",
     content: (
-      <div className="space-y-6">
-        <div className="text-3xl font-bold text-center mb-8">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8">
           🎓 Formation React & Next.js
         </div>
-        <div className="text-center space-y-4">
-          <p className="text-xl text-muted-foreground">
+        <div className="text-center space-y-3 sm:space-y-4">
+          <p className="text-base sm:text-xl text-muted-foreground">
             Master - 3 jours de formation pratique
           </p>
-          <iframe
-            src="https://giphy.com/embed/3ornk57KwDXf81rjWM"
-            width="480"
-            height="259"
-            allowFullScreen
-            className="mx-auto rounded-lg"
-          />
+          <div className="w-full max-w-full overflow-hidden rounded-lg">
+            <iframe
+              src="https://giphy.com/embed/3ornk57KwDXf81rjWM"
+              allowFullScreen
+              className="w-full h-auto aspect-video max-w-full rounded-lg"
+              style={{ minHeight: "200px" }}
+            />
+          </div>
         </div>
-        <div className="mt-8 text-center">
-          <p className="text-lg font-semibold mb-2">👋 Tour de table</p>
-          <p className="text-muted-foreground">
+        <div className="mt-4 sm:mt-8 text-center">
+          <p className="text-base sm:text-lg font-semibold mb-2">
+            👋 Tour de table
+          </p>
+          <p className="text-sm sm:text-base text-muted-foreground px-2">
             Prénom • Expérience en dev • Attentes de la formation
           </p>
         </div>
@@ -1401,27 +1404,33 @@ async function UsersPage() {
     title: "Le Projet",
     content: (
       <div className="space-y-6">
-        <div className="text-3xl font-bold text-center mb-8">
+        <div className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8">
           🎨 Projet : Next.js Studio
         </div>
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 p-6 rounded-lg border-l-4 border-purple-500">
-          <p className="font-semibold mb-3 text-xl">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 p-4 sm:p-6 rounded-lg border-l-4 border-purple-500">
+          <p className="font-semibold mb-2 sm:mb-3 text-lg sm:text-xl">
             Ce qu&apos;on va construire ensemble
           </p>
-          <p className="text-lg mb-4">
+          <p className="text-base sm:text-lg mb-3 sm:mb-4">
             Une plateforme de <strong>génération de contenu par IA</strong> avec
             différents types de rendus Next.js
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <Badge className="text-lg py-2 px-4 bg-blue-600">React 19</Badge>
-            <span className="text-2xl">+</span>
-            <Badge className="text-lg py-2 px-4 bg-green-600">Next.js 16</Badge>
-            <span className="text-2xl">+</span>
-            <Badge className="text-lg py-2 px-4 bg-purple-600">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <Badge className="text-sm sm:text-lg py-1.5 sm:py-2 px-2 sm:px-4 bg-blue-600">
+              React 19
+            </Badge>
+            <span className="text-xl sm:text-2xl">+</span>
+            <Badge className="text-sm sm:text-lg py-1.5 sm:py-2 px-2 sm:px-4 bg-green-600">
+              Next.js 16
+            </Badge>
+            <span className="text-xl sm:text-2xl">+</span>
+            <Badge className="text-sm sm:text-lg py-1.5 sm:py-2 px-2 sm:px-4 bg-purple-600">
               TypeScript
             </Badge>
-            <span className="text-2xl">+</span>
-            <Badge className="text-lg py-2 px-4 bg-pink-600">IA</Badge>
+            <span className="text-xl sm:text-2xl">+</span>
+            <Badge className="text-sm sm:text-lg py-1.5 sm:py-2 px-2 sm:px-4 bg-pink-600">
+              IA
+            </Badge>
           </div>
         </div>
 
@@ -1578,16 +1587,16 @@ async function UsersPage() {
     title: "Questions & Setup",
     content: (
       <div className="space-y-6">
-        <div className="text-3xl font-bold text-center mb-8">
+        <div className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-8">
           🚀 C&apos;est parti !
         </div>
 
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-8 rounded-lg border-l-4 border-blue-500 text-center">
-          <div className="text-6xl mb-4">💬</div>
-          <p className="font-semibold text-2xl mb-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-4 sm:p-8 rounded-lg border-l-4 border-blue-500 text-center">
+          <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">💬</div>
+          <p className="font-semibold text-xl sm:text-2xl mb-3 sm:mb-4">
             Questions avant de commencer ?
           </p>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             C&apos;est le moment de clarifier les derniers points !
           </p>
         </div>
@@ -1696,10 +1705,12 @@ async function UsersPage() {
           </div>
         </div>
 
-        <div className="text-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 p-8 rounded-lg">
-          <div className="text-6xl mb-4">🎉</div>
-          <p className="font-semibold text-2xl mb-2">Prêts à coder ?</p>
-          <p className="text-muted-foreground text-lg">
+        <div className="text-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 p-4 sm:p-8 rounded-lg">
+          <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🎉</div>
+          <p className="font-semibold text-xl sm:text-2xl mb-2">
+            Prêts à coder ?
+          </p>
+          <p className="text-muted-foreground text-base sm:text-lg">
             On passe à la pratique ! 💪
           </p>
         </div>

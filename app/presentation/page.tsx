@@ -29,11 +29,11 @@ export default function PresentationPage() {
       ref={containerRef}
       className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800"
     >
-      <div className="fixed top-4 left-4 z-50 flex gap-2">
+      <div className="fixed top-2 left-2 sm:top-4 sm:left-4 z-50 flex gap-2">
         <Link href="/">
-          <Button variant="outline" size="sm">
-            <Home className="size-4 mr-2" />
-            Accueil
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+            <Home className="size-3 sm:size-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Accueil</span>
           </Button>
         </Link>
         <Button
@@ -43,43 +43,45 @@ export default function PresentationPage() {
           title={
             isFullscreen ? "Quitter le plein écran (F)" : "Plein écran (F)"
           }
+          className="p-2"
         >
           {isFullscreen ? (
-            <Minimize className="size-4" />
+            <Minimize className="size-3 sm:size-4" />
           ) : (
-            <Maximize className="size-4" />
+            <Maximize className="size-3 sm:size-4" />
           )}
         </Button>
       </div>
 
-      <div className="flex items-center justify-center min-h-screen p-8">
+      <div className="flex items-center justify-center min-h-screen p-2 sm:p-4 md:p-8">
         <div className="w-full max-w-5xl">
-          <Card className="p-8 md:p-12 min-h-150 flex flex-col">
-            <div className="flex-1 flex items-center justify-center">
-              {slides[currentSlide]?.content}
+          <Card className="p-4 sm:p-6 md:p-8 lg:p-12 min-h-[calc(100vh-8rem)] sm:min-h-150 flex flex-col">
+            <div className="flex-1 flex items-center justify-center overflow-auto">
+              <div className="w-full">{slides[currentSlide]?.content}</div>
             </div>
 
-            <div className="mt-8 flex items-center justify-between border-t pt-6">
+            <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4 sm:pt-6">
               <Button
                 onClick={goToPrevious}
                 disabled={currentSlide === 0}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
               >
                 <ChevronLeft className="size-4" />
-                Précédent
+                <span className="hidden sm:inline">Précédent</span>
+                <span className="sm:hidden">Préc.</span>
               </Button>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 order-first sm:order-none">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   {currentSlide + 1} / {slides.length}
                 </span>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap max-w-[200px] sm:max-w-none">
                   {slides.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToSlide(index)}
-                      className={`h-2 w-2 rounded-full transition-colors ${
+                      className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full transition-colors ${
                         index === currentSlide
                           ? "bg-primary"
                           : "bg-muted hover:bg-muted-foreground/50"
@@ -94,9 +96,10 @@ export default function PresentationPage() {
                 <Button
                   onClick={goToNext}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto text-xs sm:text-sm"
                 >
-                  Suivant
+                  <span className="hidden sm:inline">Suivant</span>
+                  <span className="sm:hidden">Suiv.</span>
                   <ChevronRight className="size-4" />
                 </Button>
               )}
