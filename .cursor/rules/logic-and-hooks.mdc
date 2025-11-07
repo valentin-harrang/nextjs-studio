@@ -310,14 +310,18 @@ function Dropdown() {
 
 ## Where to Put Logic
 
-### Component Structure
+### Project Structure - Two Patterns
+
+#### Pattern 1: Standard Next.js (No Clean Architecture)
 
 ```
-app/
-├── components/
-│   ├── domain/         # UI components only (no business logic)
-│   ├── shared/         # Reusable UI components
-│   └── ui/            # Design system components
+project-root/
+├── app/
+│   ├── components/
+│   │   ├── domain/         # UI components only (no business logic)
+│   │   ├── shared/         # Reusable UI components
+│   │   └── ui/            # Design system components
+│   └── ...
 ├── lib/               # ✅ Business logic & utilities go here
 │   ├── pricing/
 │   │   ├── calculate-total.ts
@@ -333,6 +337,34 @@ app/
     └── use-custom-logic.ts
 ```
 
+#### Pattern 2: Clean Architecture
+
+```
+project-root/
+├── src/
+│   ├── domain/        # ✅ Pure business logic (no framework)
+│   │   ├── users/
+│   │   │   ├── models/
+│   │   │   ├── services/
+│   │   │   └── ports/
+│   │   └── ...
+│   ├── infra/         # ✅ Infrastructure adapters
+│   │   ├── adapters/
+│   │   └── ...
+│   ├── app/           # ✅ Next.js app directory
+│   │   ├── api/
+│   │   └── ...
+│   ├── components/    # ✅ UI components
+│   │   ├── ui/
+│   │   ├── shared/
+│   │   └── domain/
+│   └── hooks/         # ✅ Custom hooks (check usehooks-ts first!)
+│       └── use-custom-logic.ts
+└── ...
+```
+
+**Note:** In Clean Architecture projects, hooks go in `src/hooks/`, not at root level.
+
 ### Decision Tree
 
 ```
@@ -341,12 +373,18 @@ Is this logic needed?
 │   ├─ Is it a common hook pattern?
 │   │   ├─ YES → Check usehooks-ts first
 │   │   │   ├─ Found → Use it
-│   │   │   └─ Not found → Create custom hook in app/hooks/
+│   │   │   └─ Not found → Create custom hook
+│   │   │       ├─ Clean Architecture? → src/hooks/
+│   │   │       └─ Standard Next.js? → hooks/ (root)
 │   │   └─ NO → Continue
 │   ├─ Is it business logic?
-│   │   └─ YES → Extract to app/lib/[domain]/
+│   │   └─ YES → Extract to:
+│   │       ├─ Clean Architecture? → src/domain/[domain]/
+│   │       └─ Standard Next.js? → lib/[domain]/
 │   ├─ Is it a utility function?
-│   │   └─ YES → Extract to app/lib/[category]/
+│   │   └─ YES → Extract to:
+│   │       ├─ Clean Architecture? → src/domain/[category]/ or src/lib/
+│   │       └─ Standard Next.js? → lib/[category]/
 │   └─ Is it pure UI logic?
 │       └─ YES → Keep in component (but minimal)
 └─ NO → Remove it
@@ -416,32 +454,43 @@ export function calculateProductTotal(price: number, quantity: number): number {
 
 ## Common Patterns to Extract
 
-### ✅ Extract These to app/lib/
+### ✅ Standard Next.js (No Clean Architecture)
 
 1. **Formatting**
-   - Date formatting → `app/lib/formatting/format-date.ts`
-   - Price formatting → `app/lib/formatting/format-price.ts`
-   - Number formatting → `app/lib/formatting/format-number.ts`
+   - Date formatting → `lib/formatting/format-date.ts`
+   - Price formatting → `lib/formatting/format-price.ts`
+   - Number formatting → `lib/formatting/format-number.ts`
 
 2. **Validation**
-   - Email validation → `app/lib/validation/validate-email.ts`
-   - Phone validation → `app/lib/validation/validate-phone.ts`
-   - Custom rules → `app/lib/validation/validate-*.ts`
+   - Email validation → `lib/validation/validate-email.ts`
+   - Phone validation → `lib/validation/validate-phone.ts`
+   - Custom rules → `lib/validation/validate-*.ts`
 
 3. **Calculations**
-   - Price calculations → `app/lib/pricing/calculate-*.ts`
-   - Date calculations → `app/lib/dates/calculate-*.ts`
-   - Math operations → `app/lib/math/calculate-*.ts`
+   - Price calculations → `lib/pricing/calculate-*.ts`
+   - Date calculations → `lib/dates/calculate-*.ts`
+   - Math operations → `lib/math/calculate-*.ts`
 
 4. **Transformations**
-   - Data mapping → `app/lib/transformations/map-*.ts`
-   - Data filtering → `app/lib/transformations/filter-*.ts`
-   - Data sorting → `app/lib/transformations/sort-*.ts`
+   - Data mapping → `lib/transformations/map-*.ts`
+   - Data filtering → `lib/transformations/filter-*.ts`
+   - Data sorting → `lib/transformations/sort-*.ts`
 
 5. **Constants**
-   - Configuration → `app/constants/config.ts`
-   - Enums → `app/constants/enums.ts`
-   - Static data → `app/constants/*.ts`
+   - Configuration → `constants/config.ts`
+   - Enums → `constants/enums.ts`
+   - Static data → `constants/*.ts`
+
+### ✅ Clean Architecture
+
+1. **Business Logic** → `src/domain/[domain]/services/`
+   - Use cases, business rules, calculations
+
+2. **Utilities** → `src/lib/[category]/` or `src/domain/[domain]/utils/`
+   - Formatting, validation, transformations
+
+3. **Constants** → `src/constants/` or `src/domain/[domain]/constants/`
+   - Configuration, enums, static data
 
 ### ✅ Keep These in Components
 
@@ -462,6 +511,44 @@ export function calculateProductTotal(price: number, quantity: number): number {
    if (isLoading) return <Spinner />;
    ```
 
+### ❌ Extract Static Data to Constants
+
+**Large arrays, objects, or static content should be extracted to `constants/` files.**
+
+```typescript
+// ❌ BAD - Large data array in component
+export default function PresentationPage() {
+  const slides = [
+    { id: "1", title: "Slide 1", content: <div>...</div> },
+    { id: "2", title: "Slide 2", content: <div>...</div> },
+    // ... 50 more slides
+  ];
+  // ...
+}
+
+// ✅ GOOD - Extract to constants file
+// constants/presentation-slides.tsx
+export const presentationSlides = [
+  { id: "1", title: "Slide 1", content: <div>...</div> },
+  { id: "2", title: "Slide 2", content: <div>...</div> },
+  // ... 50 more slides
+];
+
+// app/presentation/page.tsx
+import { presentationSlides } from "@/constants/presentation-slides";
+
+export default function PresentationPage() {
+  const slides = presentationSlides;
+  // ...
+}
+```
+
+**When to extract:**
+- ✅ Arrays/objects with 5+ items
+- ✅ Static content (slides, menu items, configuration)
+- ✅ Data that doesn't change based on props/state
+- ✅ Content that makes the component file > 200 lines
+
 ## Installation
 
 Install usehooks-ts:
@@ -480,23 +567,27 @@ npm install usehooks-ts
 
 Before writing code in a component:
 
-- [ ] Is this business logic? → Extract to `app/lib/[domain]/`
-- [ ] Is this a utility function? → Extract to `app/lib/[category]/`
+- [ ] Is this business logic? → Extract to `lib/[domain]/` or `src/domain/[domain]/`
+- [ ] Is this a utility function? → Extract to `lib/[category]/` or `src/lib/[category]/`
+- [ ] Is this static data (arrays, objects, config)? → Extract to `constants/` or `src/constants/`
 - [ ] Is this a custom hook? → Check usehooks-ts first
 - [ ] Does usehooks-ts have this hook? → Use it
 - [ ] Is this pure UI logic? → OK to keep in component (minimal)
 - [ ] Can this be tested independently? → Extract it
 - [ ] Will this be reused? → Extract it
+- [ ] Does this make the component > 200 lines? → Extract static data or logic
 
 ## Summary
 
 **Golden Rules:**
 
 1. ❌ **NO business logic or utilities in React components**
-2. ✅ **Extract logic to `app/lib/[category]/`**
-3. ✅ **Check usehooks-ts before creating custom hooks**
-4. ✅ **Components = UI + composition only**
-5. ✅ **Logic = testable, reusable, maintainable**
+2. ❌ **NO large static data arrays/objects in components** → Extract to `constants/`
+3. ✅ **Extract logic to `lib/[category]/` or `src/lib/[category]/`**
+4. ✅ **Extract static data to `constants/` or `src/constants/`**
+5. ✅ **Check usehooks-ts before creating custom hooks**
+6. ✅ **Components = UI + composition only**
+7. ✅ **Logic = testable, reusable, maintainable**
 
 **Benefits:**
 - ✅ Better testability

@@ -30,13 +30,13 @@ export default function SSRPage() {
                 Avec le <strong>SSR</strong>, c&apos;est comme commander une
                 pizza :
               </p>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li>• 🍕 Tu commandes (requête au serveur)</li>
+              <ul className="mt-3 space-y-2 text-muted-foreground list-disc list-inside">
+                <li>🍕 Tu commandes (requête au serveur)</li>
                 <li>
-                  • 🏪 Le restaurant prépare la pizza (serveur génère le HTML)
+                  🏪 Le restaurant prépare la pizza (serveur génère le HTML)
                 </li>
                 <li>
-                  • 🚗 Le livreur arrive avec une pizza{" "}
+                  🚗 Le livreur arrive avec une pizza{" "}
                   <strong>prête à manger</strong> (HTML complet)
                 </li>
               </ul>
@@ -233,23 +233,23 @@ export default function SSRPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">✅ Utilise SSR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 📰 Les blogs et actualités</li>
-                <li>• 🛒 Les pages produits e-commerce</li>
-                <li>• 🔍 Les sites qui veulent être trouvés sur Google</li>
-                <li>• 📚 Les sites de documentation</li>
-                <li>• 👤 Les pages de profil utilisateur</li>
-                <li>• 📊 Les pages avec données personnalisées</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>📰 Les blogs et actualités</li>
+                <li>🛒 Les pages produits e-commerce</li>
+                <li>🔍 Les sites qui veulent être trouvés sur Google</li>
+                <li>📚 Les sites de documentation</li>
+                <li>👤 Les pages de profil utilisateur</li>
+                <li>📊 Les pages avec données personnalisées</li>
               </ul>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">❌ Évite SSR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 💬 Les chats en temps réel</li>
-                <li>• 🎮 Les apps très interactives</li>
-                <li>• 📱 Les dashboards privés</li>
-                <li>• 🎨 Les éditeurs collaboratifs</li>
-                <li>• 🚀 Les sites avec très peu de trafic</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>💬 Les chats en temps réel</li>
+                <li>🎮 Les apps très interactives</li>
+                <li>📱 Les dashboards privés</li>
+                <li>🎨 Les éditeurs collaboratifs</li>
+                <li>🚀 Les sites avec très peu de trafic</li>
               </ul>
             </div>
           </div>

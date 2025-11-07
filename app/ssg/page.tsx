@@ -30,16 +30,16 @@ export default function SSGPage() {
                 Avec le <strong>SSG</strong>, c&apos;est comme une pizza
                 surgelée :
               </p>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
+              <ul className="mt-3 space-y-2 text-muted-foreground list-disc list-inside">
                 <li>
-                  • 🏭 La pizza est préparée <strong>une fois en usine</strong>{" "}
+                  🏭 La pizza est préparée <strong>une fois en usine</strong>{" "}
                   (au build)
                 </li>
                 <li>
-                  • ❄️ Elle est congelée et stockée (HTML statique sur le CDN)
+                  ❄️ Elle est congelée et stockée (HTML statique sur le CDN)
                 </li>
                 <li>
-                  • 🚀 Quand tu en veux une, c&apos;est{" "}
+                  🚀 Quand tu en veux une, c&apos;est{" "}
                   <strong>instantané</strong> : on la sort du frigo et
                   c&apos;est prêt !
                 </li>
@@ -261,23 +261,23 @@ export default function SSGPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">✅ Utilise SSG pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 📝 Les blogs (articles qui changent rarement)</li>
-                <li>• 📚 Les sites de documentation</li>
-                <li>• 🏠 Les landing pages</li>
-                <li>• 🎨 Les portfolios</li>
-                <li>• 🌐 Les sites vitrines</li>
-                <li>• 📰 Les sites d&apos;actualité (rebuild quotidien)</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>📝 Les blogs (articles qui changent rarement)</li>
+                <li>📚 Les sites de documentation</li>
+                <li>🏠 Les landing pages</li>
+                <li>🎨 Les portfolios</li>
+                <li>🌐 Les sites vitrines</li>
+                <li>📰 Les sites d&apos;actualité (rebuild quotidien)</li>
               </ul>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">❌ Évite SSG pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 👤 Les pages de profil utilisateur</li>
-                <li>• 🛒 Les paniers d&apos;achat dynamiques</li>
-                <li>• 💬 Les chats et commentaires en temps réel</li>
-                <li>• 📊 Les dashboards avec données live</li>
-                <li>• 🔐 Les pages nécessitant authentification</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>👤 Les pages de profil utilisateur</li>
+                <li>🛒 Les paniers d&apos;achat dynamiques</li>
+                <li>💬 Les chats et commentaires en temps réel</li>
+                <li>📊 Les dashboards avec données live</li>
+                <li>🔐 Les pages nécessitant authentification</li>
               </ul>
             </div>
           </div>

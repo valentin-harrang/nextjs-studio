@@ -205,12 +205,12 @@ export default function ChatPage() {
                   <h3 className="font-semibold text-foreground mb-2">
                     🎯 Quand utiliser le CSR ?
                   </h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Applications interactives (chats, dashboards)</li>
-                    <li>• Streaming de données en temps réel</li>
-                    <li>• Applications avec beaucoup d&apos;état local</li>
-                    <li>• Quand le SEO n&apos;est pas critique</li>
-                    <li>• Applications authentifiées (contenu privé)</li>
+                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Applications interactives (chats, dashboards)</li>
+                    <li>Streaming de données en temps réel</li>
+                    <li>Applications avec beaucoup d&apos;état local</li>
+                    <li>Quand le SEO n&apos;est pas critique</li>
+                    <li>Applications authentifiées (contenu privé)</li>
                   </ul>
                 </div>
 
@@ -222,13 +222,13 @@ export default function ChatPage() {
                   <p className="text-sm text-muted-foreground">
                     Cette page chat utilise le CSR car elle nécessite :
                   </p>
-                  <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                    <li>• Streaming des réponses IA token par token</li>
+                  <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
+                    <li>Streaming des réponses IA token par token</li>
                     <li>
-                      • Gestion d&apos;état complexe (messages, loading, errors)
+                      Gestion d&apos;état complexe (messages, loading, errors)
                     </li>
-                    <li>• Interactivité en temps réel avec `useChat()`</li>
-                    <li>• Pas besoin de SEO (contenu dynamique utilisateur)</li>
+                    <li>Interactivité en temps réel avec `useChat()`</li>
+                    <li>Pas besoin de SEO (contenu dynamique utilisateur)</li>
                   </ul>
                 </div>
               </div>

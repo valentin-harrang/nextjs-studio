@@ -1,0 +1,175 @@
+---
+description: Tailwind CSS conventions and best practices
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# Tailwind CSS Conventions
+
+## Critical Rules
+
+### 1. ❌ NEVER Use "px" Units
+
+**Always use "rem" units or Tailwind classes.**
+
+```typescript
+// ❌ BAD - Using px
+<div className="min-h-[600px]">
+<div style={{ height: "400px" }}>
+<div className="h-[24px] w-[24px]">
+
+// ✅ GOOD - Using rem or Tailwind classes
+<div className="min-h-[37.5rem]">  // 600px = 37.5rem (16px base)
+<div className="min-h-screen">      // Prefer Tailwind classes
+<div className="size-6">            // 1.5rem = 24px
+```
+
+### 2. ✅ Always Prefer Tailwind Classes Over Arbitrary Values
+
+**Use Tailwind's built-in classes instead of arbitrary values when possible. Always check if a Tailwind class exists before using arbitrary values.**
+
+```typescript
+// ❌ BAD - Arbitrary values when Tailwind class exists
+<div className="h-[24px] w-[24px]">  // Use size-6 instead
+<div className="min-h-[37.5rem]">    // Use min-h-150 instead
+<div className="p-[16px]">            // Use p-4 instead
+<div className="text-[14px]">        // Use text-sm instead
+
+// ✅ GOOD - Tailwind classes
+<div className="size-6">           // h-6 w-6
+<div className="min-h-150">        // 37.5rem = 600px
+<div className="p-4">              // 1rem = 16px
+<div className="text-sm">          // 0.875rem = 14px
+```
+
+### 3. ✅ Use `size-*` Instead of `h-* w-*` for Square Elements
+
+**When height and width are the same, use `size-*` class.**
+
+```typescript
+// ❌ BAD - Separate h and w
+<div className="h-4 w-4">
+<Icon className="h-6 w-6" />
+<button className="h-8 w-8">
+
+// ✅ GOOD - Use size
+<div className="size-4">
+<Icon className="size-6" />
+<button className="size-8">
+```
+
+### 4. ✅ Prefer Semantic Classes Over Arbitrary Values
+
+**Use Tailwind's semantic spacing, sizing, and typography classes.**
+
+```typescript
+// ❌ BAD - Arbitrary values
+<div className="p-[12px] m-[8px] text-[16px]">
+
+// ✅ GOOD - Semantic classes
+<div className="p-3 m-2 text-base">
+```
+
+## Conversion Reference
+
+### Common px to rem Conversions (16px base)
+
+| px | rem | Tailwind Class |
+|----|-----|----------------|
+| 4px | 0.25rem | `p-1`, `m-1`, `gap-1` |
+| 8px | 0.5rem | `p-2`, `m-2`, `gap-2` |
+| 12px | 0.75rem | `p-3`, `m-3`, `gap-3` |
+| 16px | 1rem | `p-4`, `m-4`, `gap-4`, `text-base` |
+| 20px | 1.25rem | `p-5`, `m-5`, `gap-5` |
+| 24px | 1.5rem | `p-6`, `m-6`, `gap-6`, `size-6` |
+| 32px | 2rem | `p-8`, `m-8`, `gap-8`, `size-8` |
+| 40px | 2.5rem | `p-10`, `m-10`, `gap-10` |
+| 48px | 3rem | `p-12`, `m-12`, `gap-12` |
+| 64px | 4rem | `p-16`, `m-16`, `gap-16` |
+
+### Size Classes
+
+| Square Size | Tailwind Class |
+|-------------|----------------|
+| 16px × 16px | `size-4` |
+| 20px × 20px | `size-5` |
+| 24px × 24px | `size-6` |
+| 32px × 32px | `size-8` |
+| 40px × 40px | `size-10` |
+| 48px × 48px | `size-12` |
+
+## Examples
+
+### ✅ Good Examples
+
+```typescript
+// Icons - use size
+<ChevronLeft className="size-4" />
+<Home className="size-6" />
+
+// Containers - use semantic classes
+<div className="min-h-screen p-8">
+<div className="max-w-5xl mx-auto">
+
+// Spacing - use Tailwind classes
+<div className="space-y-4 p-6">
+<div className="gap-4 flex items-center">
+
+// Typography - use Tailwind classes
+<p className="text-sm text-muted-foreground">
+<h1 className="text-4xl font-bold">
+```
+
+### ❌ Bad Examples
+
+```typescript
+// ❌ Using px in arbitrary values
+<div className="min-h-[600px]">
+<div className="h-[24px] w-[24px]">
+<div className="p-[16px]">
+
+// ❌ Using h and w separately for squares
+<Icon className="h-4 w-4" />
+
+// ❌ Using inline styles with px
+<div style={{ height: "400px", padding: "16px" }}>
+```
+
+## When Arbitrary Values Are Acceptable
+
+Arbitrary values are acceptable **only** when:
+1. No equivalent Tailwind class exists
+2. You need a specific rem value not in Tailwind's scale
+3. You're using CSS custom properties
+
+```typescript
+// ✅ Acceptable - No Tailwind equivalent
+<div className="grid-cols-[200px_1fr]">
+
+// ✅ Acceptable - Specific rem value (only if no Tailwind class exists)
+<div className="min-h-[37.5rem]">  // Only if min-h-150 doesn't exist
+
+// ✅ Acceptable - CSS custom property
+<div className="bg-[var(--primary-color)]">
+```
+
+## Checklist
+
+Before committing code, check:
+
+- [ ] No `px` units in className or style props
+- [ ] No arbitrary values like `h-[24px]` or `min-h-[600px]`
+- [ ] Square elements use `size-*` instead of `h-* w-*`
+- [ ] Prefer Tailwind semantic classes over arbitrary values
+- [ ] Use `rem` if arbitrary values are necessary
+
+## Summary
+
+**Golden Rules:**
+
+1. ❌ **NEVER use "px"** - Always use "rem" or Tailwind classes
+2. ✅ **Prefer Tailwind classes** - Use built-in classes over arbitrary values
+3. ✅ **Use `size-*`** - For square elements instead of `h-* w-*`
+4. ✅ **Use semantic classes** - `p-4`, `m-2`, `text-base`, etc.

@@ -30,12 +30,12 @@ export default function CSRPage() {
                 Imagine que tu commandes une pizza. Avec le <strong>CSR</strong>
                 , tu reçois :
               </p>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li>• 📦 Une boîte vide (HTML minimal)</li>
-                <li>• 📋 Une recette (JavaScript)</li>
+              <ul className="mt-3 space-y-2 text-muted-foreground list-disc list-inside">
+                <li>📦 Une boîte vide (HTML minimal)</li>
+                <li>📋 Une recette (JavaScript)</li>
                 <li>
-                  • 🧑‍🍳 Toi-même tu dois cuisiner la pizza (le navigateur génère
-                  le contenu)
+                  🧑‍🍳 Toi-même tu dois cuisiner la pizza (le navigateur génère le
+                  contenu)
                 </li>
               </ul>
               <p className="mt-3 text-muted-foreground">
@@ -218,22 +218,22 @@ export default function CSRPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">✅ Utilise CSR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 💬 Les chats (Discord, Slack)</li>
-                <li>• 📊 Les dashboards interactifs</li>
-                <li>• 🎮 Les apps web (Gmail, Notion)</li>
-                <li>• 🎨 Les éditeurs en temps réel</li>
-                <li>• 📱 Les apps mobiles web</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>💬 Les chats (Discord, Slack)</li>
+                <li>📊 Les dashboards interactifs</li>
+                <li>🎮 Les apps web (Gmail, Notion)</li>
+                <li>🎨 Les éditeurs en temps réel</li>
+                <li>📱 Les apps mobiles web</li>
               </ul>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">❌ Évite CSR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 📰 Les blogs (besoin SEO)</li>
-                <li>• 🛒 Les e-commerce publics</li>
-                <li>• 📚 Les sites de documentation</li>
-                <li>• 🌐 Les landing pages marketing</li>
-                <li>• 🔍 Les sites qui doivent être trouvés sur Google</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>📰 Les blogs (besoin SEO)</li>
+                <li>🛒 Les e-commerce publics</li>
+                <li>📚 Les sites de documentation</li>
+                <li>🌐 Les landing pages marketing</li>
+                <li>🔍 Les sites qui doivent être trouvés sur Google</li>
               </ul>
             </div>
           </div>

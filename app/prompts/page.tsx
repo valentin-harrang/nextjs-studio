@@ -189,12 +189,12 @@ export default async function PromptsPage() {
                     <h3 className="font-semibold text-foreground mb-2">
                       🎯 Quand utiliser le SSR ?
                     </h3>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Pages publiques nécessitant un bon SEO</li>
-                      <li>• Contenu qui change fréquemment</li>
-                      <li>• Données personnalisées par utilisateur</li>
-                      <li>• Quand la sécurité est importante (API keys)</li>
-                      <li>• Blogs, e-commerce, pages de contenu</li>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      <li>Pages publiques nécessitant un bon SEO</li>
+                      <li>Contenu qui change fréquemment</li>
+                      <li>Données personnalisées par utilisateur</li>
+                      <li>Quand la sécurité est importante (API keys)</li>
+                      <li>Blogs, e-commerce, pages de contenu</li>
                     </ul>
                   </div>
 
@@ -206,13 +206,13 @@ export default async function PromptsPage() {
                     <p className="text-sm text-muted-foreground">
                       Cette page utilise le SSR car elle nécessite :
                     </p>
-                    <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                    <ul className="text-sm text-muted-foreground mt-2 space-y-1 list-disc list-inside">
                       <li>
-                        • Génération d&apos;idées IA à chaque visite (frais)
+                        Génération d&apos;idées IA à chaque visite (frais)
                       </li>
-                      <li>• SEO potentiel (même si limité ici)</li>
-                      <li>• Clé API Groq sécurisée côté serveur</li>
-                      <li>• HTML complet pour un rendu rapide</li>
+                      <li>SEO potentiel (même si limité ici)</li>
+                      <li>Clé API Groq sécurisée côté serveur</li>
+                      <li>HTML complet pour un rendu rapide</li>
                     </ul>
                   </div>
                 </div>

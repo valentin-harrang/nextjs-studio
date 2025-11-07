@@ -30,21 +30,21 @@ export default function ISRPage() {
                 Avec l&apos;<strong>ISR</strong>, c&apos;est comme une pizza
                 surgelée :
               </p>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
+              <ul className="mt-3 space-y-2 text-muted-foreground list-disc list-inside">
                 <li>
-                  • 🏭 La pizza est préparée en usine (générée au build - SSG)
+                  🏭 La pizza est préparée en usine (générée au build - SSG)
                 </li>
-                <li>• ❄️ Elle est stockée dans un frigo (cache CDN)</li>
+                <li>❄️ Elle est stockée dans un frigo (cache CDN)</li>
                 <li>
-                  • 🚀 Quand tu en veux une, c&apos;est{" "}
+                  🚀 Quand tu en veux une, c&apos;est{" "}
                   <strong>instantané</strong> (servie depuis le cache)
                 </li>
                 <li>
-                  • 🔄 Mais toutes les 24h, l&apos;usine prépare une{" "}
+                  🔄 Mais toutes les 24h, l&apos;usine prépare une{" "}
                   <strong>nouvelle pizza</strong> en arrière-plan
                 </li>
                 <li>
-                  • 👥 Pendant ce temps, les visiteurs continuent de recevoir
+                  👥 Pendant ce temps, les visiteurs continuent de recevoir
                   l&apos;ancienne (pas d&apos;attente)
                 </li>
               </ul>
@@ -293,29 +293,29 @@ export default async function ArticlesPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">✅ Utilise ISR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 📰 Les blogs avec articles qui changent régulièrement</li>
-                <li>• 🛒 Les catalogues produits e-commerce</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>📰 Les blogs avec articles qui changent régulièrement</li>
+                <li>🛒 Les catalogues produits e-commerce</li>
                 <li>
-                  • 📊 Les dashboards avec données qui changent (mais pas en
-                  temps réel)
+                  📊 Les dashboards avec données qui changent (mais pas en temps
+                  réel)
                 </li>
                 <li>
-                  • 📈 Les pages avec statistiques (mises à jour périodiques)
+                  📈 Les pages avec statistiques (mises à jour périodiques)
                 </li>
-                <li>• 📝 Les sites de contenu avec beaucoup de trafic</li>
-                <li>• 🔄 Les pages qui doivent être rapides ET à jour</li>
+                <li>📝 Les sites de contenu avec beaucoup de trafic</li>
+                <li>🔄 Les pages qui doivent être rapides ET à jour</li>
               </ul>
             </div>
             <div className="p-4 bg-muted rounded-lg">
               <h3 className="font-semibold mb-2">❌ Évite ISR pour :</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• 💬 Les chats en temps réel</li>
-                <li>• 📊 Les dashboards avec données live (secondes)</li>
-                <li>• 👤 Les pages de profil utilisateur (personnalisées)</li>
-                <li>• 🎮 Les apps interactives</li>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>💬 Les chats en temps réel</li>
+                <li>📊 Les dashboards avec données live (secondes)</li>
+                <li>👤 Les pages de profil utilisateur (personnalisées)</li>
+                <li>🎮 Les apps interactives</li>
                 <li>
-                  • 📱 Les contenus qui doivent être 100% à jour instantanément
+                  📱 Les contenus qui doivent être 100% à jour instantanément
                 </li>
               </ul>
             </div>
