@@ -28,7 +28,9 @@ export default function QuizConfigPage() {
 
   // 🎓 State pour le formulaire
   const [topic, setTopic] = useState("");
-  const [difficulty, setDifficulty] = useState<"Facile" | "Moyen" | "Difficile">("Moyen");
+  const [difficulty, setDifficulty] = useState<
+    "Facile" | "Moyen" | "Difficile"
+  >("Moyen");
   const [numQuestions, setNumQuestions] = useState<5 | 10 | 15>(10);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,9 @@ export default function QuizConfigPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la génération du quiz");
+        throw new Error(
+          errorData.error || "Erreur lors de la génération du quiz"
+        );
       }
 
       const quiz: Quiz = await response.json();
@@ -112,13 +116,20 @@ export default function QuizConfigPage() {
 
           {/* Niveau de difficulté */}
           <div>
-            <label htmlFor="difficulty" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="difficulty"
+              className="block text-sm font-medium mb-2"
+            >
               Niveau de difficulté
             </label>
             <select
               id="difficulty"
               value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as "Facile" | "Moyen" | "Difficile")}
+              onChange={(e) =>
+                setDifficulty(
+                  e.target.value as "Facile" | "Moyen" | "Difficile"
+                )
+              }
               disabled={isLoading}
               className="flex h-9 w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -130,13 +141,18 @@ export default function QuizConfigPage() {
 
           {/* Nombre de questions */}
           <div>
-            <label htmlFor="numQuestions" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="numQuestions"
+              className="block text-sm font-medium mb-2"
+            >
               Nombre de questions
             </label>
             <select
               id="numQuestions"
               value={numQuestions}
-              onChange={(e) => setNumQuestions(Number(e.target.value) as 5 | 10 | 15)}
+              onChange={(e) =>
+                setNumQuestions(Number(e.target.value) as 5 | 10 | 15)
+              }
               disabled={isLoading}
               className="flex h-9 w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -178,7 +194,8 @@ export default function QuizConfigPage() {
         {isLoading && (
           <div className="mt-6 p-4 rounded-md bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
             <p className="text-sm text-blue-800 dark:text-blue-300">
-              L'IA génère vos questions personnalisées... Cela peut prendre quelques secondes.
+              L&apos;IA génère vos questions personnalisées... Cela peut prendre
+              quelques secondes.
             </p>
           </div>
         )}

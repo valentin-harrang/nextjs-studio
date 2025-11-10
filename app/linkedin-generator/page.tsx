@@ -1,127 +1,48 @@
 "use client";
 
-import { useState } from "react";
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
 import { GoHome } from "@/components/shared/go-home";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Linkedin, Copy, Check, Trash2, RefreshCw } from "lucide-react";
+import {
+  Loader2,
+  Linkedin,
+  Copy,
+  Check,
+  Trash2,
+  RefreshCw,
+} from "lucide-react";
 import { parseResponseWithReasoning } from "@/lib/filter-reasoning";
 import { MarkdownContent } from "@/components/shared/markdown-content";
-
-// Types pour les tons disponibles
-type ToneOption =
-  | "Professionnel et inspirant"
-  | "Authentique et personnel"
-  | "Pédagogique et didactique"
-  | "Réflexif et introspectif"
-  | "Enthousiaste et motivant";
+import {
+  useLinkedInGenerator,
+  toneOptions,
+  type ToneOption,
+} from "@/lib/use-linkedin-generator";
 
 export default function LinkedInGeneratorPage() {
-  // 🎓 State pour le formulaire
-  const [objective, setObjective] = useState("");
-  const [context, setContext] = useState("");
-  const [tone, setTone] = useState<ToneOption>("Professionnel et inspirant");
-  const [numVariations, setNumVariations] = useState(1);
-
-  // 🎓 State pour les résultats
-  const [posts, setPosts] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // 🎓 State pour les boutons "Copier"
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  // 🎓 Fonction pour générer les posts
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    // Validation côté client
-    if (objective.length < 10) {
-      setError("L'objectif doit faire au moins 10 caractères");
-      return;
-    }
-    if (context.length < 20) {
-      setError("Le contexte doit faire au moins 20 caractères");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/generate-linkedin-post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ objective, context, tone, numVariations }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la génération");
-      }
-
-      const data = await response.json();
-      setPosts(data.posts);
-    } catch (err) {
-      console.error("Error generating LinkedIn post:", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 🎓 Fonction pour copier un post
-  const handleCopy = async (post: string, index: number) => {
-    try {
-      await navigator.clipboard.writeText(post);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  };
-
-  // 🎓 Fonction pour régénérer une variation spécifique
-  const handleRegenerateVariation = async (index: number) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/generate-linkedin-post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ objective, context, tone, numVariations: 1 }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la régénération");
-      }
-
-      const data = await response.json();
-      const newPosts = [...posts];
-      newPosts[index] = data.posts[0];
-      setPosts(newPosts);
-    } catch (err) {
-      console.error("Error regenerating post:", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 🎓 Fonction pour tout effacer
-  const handleClear = () => {
-    setPosts([]);
-    setObjective("");
-    setContext("");
-    setTone("Professionnel et inspirant");
-    setNumVariations(1);
-    setError(null);
-  };
+  // 🎓 Utiliser le hook personnalisé pour toute la logique
+  const {
+    objective,
+    setObjective,
+    context,
+    setContext,
+    tone,
+    setTone,
+    numVariations,
+    setNumVariations,
+    posts,
+    isLoading,
+    error,
+    validationErrors,
+    copiedIndex,
+    handleGenerate,
+    handleCopy,
+    handleRegenerateVariation,
+    handleClear,
+  } = useLinkedInGenerator();
 
   return (
     <PageContainer>
@@ -144,7 +65,10 @@ export default function LinkedInGeneratorPage() {
         <form onSubmit={handleGenerate} className="space-y-6">
           {/* Objectif */}
           <div>
-            <label htmlFor="objective" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="objective"
+              className="block text-sm font-medium mb-2"
+            >
               Objectif du post
             </label>
             <textarea
@@ -154,11 +78,21 @@ export default function LinkedInGeneratorPage() {
               placeholder="Ex: Partager mon retour d'expérience sur mon premier cours..."
               rows={3}
               disabled={isLoading}
-              className="flex min-h-[80px] w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              className={`flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
+                validationErrors.objective
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-input bg-white dark:bg-slate-950"
+              }`}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              {objective.length} caractères (min: 10)
-            </p>
+            {validationErrors.objective ? (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                {validationErrors.objective}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                {objective.length} caractères (min: 10, max: 500)
+              </p>
+            )}
           </div>
 
           {/* Contexte */}
@@ -173,11 +107,21 @@ export default function LinkedInGeneratorPage() {
               placeholder="Ex: J'ai donné 3 jours de cours sur Next.js avec une approche hands-on..."
               rows={4}
               disabled={isLoading}
-              className="flex min-h-[100px] w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              className={`flex min-h-[100px] w-full rounded-md border px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none ${
+                validationErrors.context
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-input bg-white dark:bg-slate-950"
+              }`}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              {context.length} caractères (min: 20)
-            </p>
+            {validationErrors.context ? (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                {validationErrors.context}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                {context.length} caractères (min: 20, max: 1000)
+              </p>
+            )}
           </div>
 
           {/* Ton */}
@@ -190,19 +134,31 @@ export default function LinkedInGeneratorPage() {
               value={tone}
               onChange={(e) => setTone(e.target.value as ToneOption)}
               disabled={isLoading}
-              className="flex h-9 w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className={`flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
+                validationErrors.tone
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-input bg-white dark:bg-slate-950"
+              }`}
             >
-              <option value="Professionnel et inspirant">Professionnel et inspirant</option>
-              <option value="Authentique et personnel">Authentique et personnel</option>
-              <option value="Pédagogique et didactique">Pédagogique et didactique</option>
-              <option value="Réflexif et introspectif">Réflexif et introspectif</option>
-              <option value="Enthousiaste et motivant">Enthousiaste et motivant</option>
+              {toneOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
+            {validationErrors.tone && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                {validationErrors.tone}
+              </p>
+            )}
           </div>
 
           {/* Nombre de variations */}
           <div>
-            <label htmlFor="numVariations" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="numVariations"
+              className="block text-sm font-medium mb-2"
+            >
               Nombre de variations
             </label>
             <input
@@ -213,9 +169,21 @@ export default function LinkedInGeneratorPage() {
               value={numVariations}
               onChange={(e) => setNumVariations(Number(e.target.value))}
               disabled={isLoading}
-              className="flex h-9 w-full rounded-md border border-input bg-white dark:bg-slate-950 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className={`flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
+                validationErrors.numVariations
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-input bg-white dark:bg-slate-950"
+              }`}
             />
-            <p className="text-xs text-muted-foreground mt-1">Entre 1 et 3 variations</p>
+            {validationErrors.numVariations ? (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                {validationErrors.numVariations}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                Entre 1 et 3 variations
+              </p>
+            )}
           </div>
 
           {/* Message d'erreur */}
@@ -339,7 +307,9 @@ function PostCard({
           </div>
           <div>
             <p className="font-semibold">Votre nom</p>
-            <p className="text-xs text-muted-foreground">Votre titre • Maintenant</p>
+            <p className="text-xs text-muted-foreground">
+              Votre titre • Maintenant
+            </p>
           </div>
         </div>
         <div className="text-sm leading-relaxed font-sans">
