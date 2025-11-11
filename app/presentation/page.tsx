@@ -14,13 +14,11 @@ import { useFullscreen } from "@/hooks/use-fullscreen";
 import { useSlideNavigation } from "@/hooks/use-slide-navigation";
 import { presentationSlides } from "@/constants/presentation-slides";
 
-const slides = presentationSlides;
-
 export default function PresentationPage() {
   const { isFullscreen, toggleFullscreen, containerRef } = useFullscreen();
   const { currentSlide, goToNext, goToPrevious, goToSlide } =
     useSlideNavigation({
-      totalSlides: slides.length,
+      totalSlides: presentationSlides.length,
       onFullscreenToggle: toggleFullscreen,
     });
 
@@ -58,18 +56,20 @@ export default function PresentationPage() {
       <div
         className={`flex ${
           isFullscreen ? "items-start" : "items-center"
-        } justify-center ${isFullscreen ? "py-4" : "min-h-screen p-2 sm:p-4 md:p-8"}`}
+        } justify-center ${
+          isFullscreen ? "py-4" : "min-h-screen p-2 sm:p-4 md:p-8"
+        }`}
       >
         <div className="w-full max-w-5xl">
           <Card
             className={`p-4 sm:p-6 md:p-8 lg:p-12 ${
-              isFullscreen
-                ? "my-4"
-                : "min-h-[calc(100vh-8rem)] sm:min-h-150"
+              isFullscreen ? "my-4" : "min-h-[calc(100vh-8rem)] sm:min-h-150"
             } flex flex-col`}
           >
             <div className="flex-1 flex items-center justify-center">
-              <div className="w-full">{slides[currentSlide]?.content}</div>
+              <div className="w-full">
+                {presentationSlides[currentSlide]?.content}
+              </div>
             </div>
 
             <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4 sm:pt-6">
@@ -86,10 +86,10 @@ export default function PresentationPage() {
 
               <div className="flex items-center gap-2 order-first sm:order-none">
                 <span className="text-xs sm:text-sm text-muted-foreground">
-                  {currentSlide + 1} / {slides.length}
+                  {currentSlide + 1} / {presentationSlides.length}
                 </span>
                 <div className="flex gap-1 flex-wrap max-w-[200px] sm:max-w-none">
-                  {slides.map((_, index) => (
+                  {presentationSlides.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToSlide(index)}
@@ -104,7 +104,7 @@ export default function PresentationPage() {
                 </div>
               </div>
 
-              {currentSlide < slides.length - 1 && (
+              {currentSlide < presentationSlides.length - 1 && (
                 <Button
                   onClick={goToNext}
                   variant="outline"
