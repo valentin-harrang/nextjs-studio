@@ -1,43 +1,37 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Bot, Send, Users, Wifi, WifiOff, MessageCircle } from 'lucide-react';
-
-// Types
-interface Message {
-  id: string;
-  username: string;
-  text: string;
-  timestamp: number;
-  isAI?: boolean;
-}
-
-interface User {
-  id: string;
-  username: string;
-}
+import { useCollaborativeChat } from '@/hooks/use-collaborative-chat';
 
 const SOCKET_URL = 'http://localhost:3001';
 
 export default function CollaborativeChatPage() {
-  // State
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [connected, setConnected] = useState(false);
+  // Local state for UI
   const [username, setUsername] = useState('');
   const [hasJoined, setHasJoined] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [error, setError] = useState('');
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
-  // Refs
+  // Ref for auto-scroll
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Use the collaborative chat hook
+  const {
+    connected,
+    messages,
+    users,
+    typingUsers,
+    joinChat,
+    sendMessage,
+    emitTyping,
+  } = useCollaborativeChat({
+    socketUrl: SOCKET_URL,
+    onError: setError,
+  });
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -48,132 +42,27 @@ export default function CollaborativeChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  // Initialize socket connection
-  useEffect(() => {
-    const socketInstance = io(SOCKET_URL, {
-      autoConnect: true,
-    });
-
-    socketInstance.on('connect', () => {
-      console.log('Connected to server');
-      setConnected(true);
-      setError('');
-    });
-
-    socketInstance.on('disconnect', () => {
-      console.log('Disconnected from server');
-      setConnected(false);
-    });
-
-    socketInstance.on('connect_error', (err) => {
-      console.error('Connection error:', err);
-      setConnected(false);
-      setError('Impossible de se connecter au serveur. Assurez-vous que le serveur Socket.IO est démarré (npm run socket).');
-    });
-
-    socketInstance.on('error', (errorMessage: string) => {
-      setError(errorMessage);
-    });
-
-    socketInstance.on('message:history', (history: Message[]) => {
-      setMessages(history);
-    });
-
-    socketInstance.on('message:new', (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    socketInstance.on('users:list', (usersList: User[]) => {
-      setUsers(usersList);
-    });
-
-    socketInstance.on('user:joined', (username: string) => {
-      // Optional: Show notification
-      console.log(`${username} joined the chat`);
-    });
-
-    socketInstance.on('user:left', (username: string) => {
-      // Optional: Show notification
-      console.log(`${username} left the chat`);
-    });
-
-    socketInstance.on('user:typing', (username: string) => {
-      setTypingUsers((prev) => {
-        if (!prev.includes(username)) {
-          return [...prev, username];
-        }
-        return prev;
-      });
-    });
-
-    socketInstance.on('user:stop-typing', (username: string) => {
-      setTypingUsers((prev) => prev.filter((u) => u !== username));
-    });
-
-    setSocket(socketInstance);
-
-    return () => {
-      socketInstance.disconnect();
-    };
-  }, []);
-
-  // Join chat
+  // Handle join
   const handleJoin = () => {
-    if (!socket || !connected) {
-      setError('Non connecté au serveur');
-      return;
+    const success = joinChat(username);
+    if (success) {
+      setHasJoined(true);
+      setError('');
     }
-
-    if (!username.trim()) {
-      setError('Le pseudo ne peut pas être vide');
-      return;
-    }
-
-    if (username.length > 20) {
-      setError('Le pseudo est trop long (max 20 caractères)');
-      return;
-    }
-
-    socket.emit('user:join', username.trim());
-    setHasJoined(true);
-    setError('');
   };
 
-  // Send message
+  // Handle send message
   const handleSendMessage = () => {
-    if (!socket || !inputMessage.trim()) {
-      return;
+    const success = sendMessage(inputMessage);
+    if (success) {
+      setInputMessage('');
     }
-
-    socket.emit('message:send', inputMessage.trim());
-    setInputMessage('');
-
-    // Stop typing indicator
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
-    }
-    socket.emit('user:stop-typing');
   };
 
   // Handle input change (typing indicator)
   const handleInputChange = (value: string) => {
     setInputMessage(value);
-
-    if (!socket) return;
-
-    // Emit typing event
-    socket.emit('user:typing');
-
-    // Clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // Stop typing after 2 seconds of inactivity
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('user:stop-typing');
-    }, 2000);
+    emitTyping();
   };
 
   // Format timestamp
@@ -200,7 +89,7 @@ export default function CollaborativeChatPage() {
               Chat Collaboratif
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Discutez en temps réel avec d'autres utilisateurs et l'IA
+              Discutez en temps réel avec d&apos;autres utilisateurs et l&apos;IA
             </p>
           </div>
 
@@ -255,7 +144,7 @@ export default function CollaborativeChatPage() {
 
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              💡 Mentionnez <span className="font-mono font-semibold">@chatbot</span> dans vos messages pour invoquer l'IA
+              💡 Mentionnez <span className="font-mono font-semibold">@chatbot</span> dans vos messages pour invoquer l&apos;IA
             </p>
           </div>
         </Card>
@@ -362,9 +251,7 @@ export default function CollaborativeChatPage() {
                     } rounded-2xl px-4 py-3 shadow-md`}
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      {message.isAI && (
-                        <Bot className="w-4 h-4" />
-                      )}
+                      {message.isAI && <Bot className="w-4 h-4" />}
                       <span className="font-semibold text-sm">
                         {message.username}
                       </span>
@@ -394,7 +281,7 @@ export default function CollaborativeChatPage() {
               <div className="flex justify-start">
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-2 shadow-md">
                   <p className="text-sm text-gray-600 dark:text-gray-400 italic">
-                    {typingUsers.join(', ')} {typingUsers.length === 1 ? 'est' : 'sont'} en train d'écrire...
+                    {typingUsers.join(', ')} {typingUsers.length === 1 ? 'est' : 'sont'} en train d&apos;écrire...
                   </p>
                 </div>
               </div>
@@ -425,7 +312,7 @@ export default function CollaborativeChatPage() {
             </Button>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            💡 Astuce : Mentionnez <span className="font-mono font-semibold">@chatbot</span> pour poser une question à l'IA
+            💡 Astuce : Mentionnez <span className="font-mono font-semibold">@chatbot</span> pour poser une question à l&apos;IA
           </p>
         </div>
       </div>
