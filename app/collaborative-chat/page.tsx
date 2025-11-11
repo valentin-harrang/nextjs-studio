@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Bot, Send, Users, Wifi, WifiOff, MessageCircle } from 'lucide-react';
 import { useCollaborativeChat } from '@/hooks/use-collaborative-chat';
 
-const SOCKET_URL = 'http://localhost:3001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
 
 export default function CollaborativeChatPage() {
   // Local state for UI
