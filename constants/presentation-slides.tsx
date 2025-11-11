@@ -245,7 +245,7 @@ const element = <h1>Bonjour {name} !</h1>;`}</code>
     content: (
       <div className="space-y-6">
         <div className="text-2xl font-bold text-center mb-8">
-          React aujourd&apos;hui en 2024-2025
+          React aujourd&apos;hui
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
