@@ -25,7 +25,7 @@ alwaysApply: true
    └─ YES → 🔵 Nuqs
 
 2. NO → Is it server data? (API, database)
-   └─ YES → 🟣 TanStack Query / SWR
+   └─ YES → 🟣 TanStack Query
 
 3. NO → Is it a form? (login, create, edit)
    └─ YES → 🟢 React Hook Form
