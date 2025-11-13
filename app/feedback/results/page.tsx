@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BarChart3, TrendingUp, ThumbsUp, MessageSquare } from "lucide-react";
 import type { CourseFeedback } from "@/lib/supabase";
+import { SpellCheckedText } from "@/components/shared/spell-checked-text";
 
 interface FeedbackStats {
   totalResponses: number;
@@ -266,7 +267,9 @@ export default function FeedbackResultsPage() {
                         Ce qui a été appris :
                       </p>
                       <p className="text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-                        {feedback.what_learned}
+                        <SpellCheckedText showLoader>
+                          {feedback.what_learned}
+                        </SpellCheckedText>
                       </p>
                     </div>
 
@@ -276,7 +279,9 @@ export default function FeedbackResultsPage() {
                         Améliorations suggérées :
                       </p>
                       <p className="text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-                        {feedback.improvements}
+                        <SpellCheckedText showLoader>
+                          {feedback.improvements}
+                        </SpellCheckedText>
                       </p>
                     </div>
 
@@ -287,7 +292,9 @@ export default function FeedbackResultsPage() {
                           Commentaires supplémentaires :
                         </p>
                         <p className="text-gray-800 dark:text-gray-200 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                          {feedback.additional_comments}
+                          <SpellCheckedText showLoader>
+                            {feedback.additional_comments}
+                          </SpellCheckedText>
                         </p>
                       </div>
                     )}

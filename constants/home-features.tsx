@@ -10,6 +10,7 @@ import {
   Linkedin,
   Users,
   Megaphone,
+  Sparkles,
 } from "lucide-react";
 
 export interface HomeFeature {
@@ -86,6 +87,16 @@ export const homeFeatures: HomeFeature[] = [
     badge: "Nouveau",
     badgeVariant: "destructive" as const,
     gradient: "from-rose-500 to-orange-500",
+  },
+  {
+    title: "Correction Orthographique",
+    description:
+      "Correction automatique des fautes avec IA sans modifier les données",
+    href: "/spell-check-demo",
+    icon: Sparkles,
+    badge: "IA",
+    badgeVariant: "destructive" as const,
+    gradient: "from-pink-500 to-violet-500",
   },
   {
     title: "Ressources",

@@ -3,6 +3,7 @@ import { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SpellCheckedText } from "./spell-checked-text";
 
 interface FeatureCardProps {
   title: string;
@@ -12,6 +13,11 @@ interface FeatureCardProps {
   badge: string;
   badgeVariant: "default" | "secondary" | "outline" | "destructive";
   gradient: string;
+  /**
+   * Activer la correction orthographique automatique
+   * @default false
+   */
+  spellCheck?: boolean;
 }
 
 export function FeatureCard({
@@ -22,6 +28,7 @@ export function FeatureCard({
   badge,
   badgeVariant,
   gradient,
+  spellCheck = false,
 }: FeatureCardProps) {
   return (
     <Link href={href} title={title}>
@@ -42,11 +49,19 @@ export function FeatureCard({
           </div>
 
           <h3 className="text-xl text-left font-semibold mb-2 group-hover:text-primary transition-colors">
-            {title}
+            {spellCheck ? (
+              <SpellCheckedText>{title}</SpellCheckedText>
+            ) : (
+              title
+            )}
           </h3>
 
           <p className="text-sm text-left text-muted-foreground grow">
-            {description}
+            {spellCheck ? (
+              <SpellCheckedText>{description}</SpellCheckedText>
+            ) : (
+              description
+            )}
           </p>
 
           <div className="mt-4 text-sm font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
