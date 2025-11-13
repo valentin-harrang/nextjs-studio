@@ -9,6 +9,7 @@ import {
   Brain,
   Linkedin,
   Users,
+  Megaphone,
 } from "lucide-react";
 
 export interface HomeFeature {
@@ -17,7 +18,7 @@ export interface HomeFeature {
   href: string;
   icon: typeof MessageSquare;
   badge: string;
-  badgeVariant: "default" | "secondary" | "outline";
+  badgeVariant: "default" | "secondary" | "outline" | "destructive";
   gradient: string;
 }
 
@@ -75,6 +76,16 @@ export const homeFeatures: HomeFeature[] = [
     badge: "CSR",
     badgeVariant: "default" as const,
     gradient: "from-blue-600 to-cyan-600",
+  },
+  {
+    title: "Feedback Formation",
+    description:
+      "Partagez votre avis anonymement pour améliorer les prochaines sessions",
+    href: "/feedback",
+    icon: Megaphone,
+    badge: "Nouveau",
+    badgeVariant: "destructive" as const,
+    gradient: "from-rose-500 to-orange-500",
   },
   {
     title: "Ressources",
