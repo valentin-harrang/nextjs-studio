@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, type CourseFeedback } from '@/lib/supabase';
+import { supabaseAdmin, type CourseFeedback } from '@/lib/supabase';
 import { z } from 'zod';
 
 // Schema de validation
@@ -40,8 +40,17 @@ export async function POST(request: NextRequest) {
       additional_comments: validatedData.additionalComments || null,
     };
 
-    // Insérer dans Supabase
-    const { data, error } = await supabase
+    // Vérifier que le client admin est disponible
+    if (!supabaseAdmin) {
+      console.error('Supabase admin client not configured');
+      return NextResponse.json(
+        { error: 'Configuration serveur manquante' },
+        { status: 500 }
+      );
+    }
+
+    // Insérer dans Supabase avec le client admin (bypass RLS)
+    const { data, error } = await supabaseAdmin
       .from('course_feedback')
       .insert([feedbackData])
       .select()
