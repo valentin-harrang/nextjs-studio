@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       what_learned: validatedData.whatLearned,
       improvements: validatedData.improvements,
       would_recommend: validatedData.wouldRecommend,
-      additional_comments: validatedData.additionalComments || null,
+      additional_comments: validatedData.additionalComments,
     };
 
     // Vérifier que le client admin est disponible
