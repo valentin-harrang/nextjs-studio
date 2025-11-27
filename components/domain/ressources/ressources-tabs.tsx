@@ -69,6 +69,7 @@ const categoryGroups = [
       "Internationalization",
       "Onboarding",
       "Development",
+      "Testing",
       "Authentication",
       "Email",
     ],
