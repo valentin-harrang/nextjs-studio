@@ -26,6 +26,7 @@ import {
   Search,
   Mail,
   ToggleRight,
+  Bug,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1541,6 +1542,40 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-blue-900/30",
       text: "text-blue-600",
       textDark: "dark:text-blue-400",
+    },
+  },
+  {
+    slug: "jam",
+    name: "Jam",
+    category: "Development",
+    icon: Bug,
+    description: "Outil de bug reporting automatisé pour les équipes",
+    longDescription:
+      "Jam est une extension navigateur qui simplifie le signalement de bugs en capturant automatiquement toutes les informations techniques nécessaires. Elle enregistre les vidéos, logs de console, requêtes réseau, et étapes de reproduction, éliminant les allers-retours entre QA et développeurs.",
+    website: "https://jam.dev",
+    useCases: [
+      "Signalement de bugs avec contexte complet",
+      "Communication QA-développeurs simplifiée",
+      "Capture automatique des étapes de reproduction",
+      "Support client avec informations techniques",
+      "Debugging avec logs et requêtes réseau",
+    ],
+    features: [
+      "Capture vidéo avec historique instantané",
+      "Logs de console automatiques",
+      "Requêtes réseau capturées",
+      "Étapes de reproduction automatiques",
+      "Annotations et floutage",
+      "Intégration Jira, Linear, GitHub, Slack",
+      "Intégration Sentry",
+      "Extension navigateur",
+      "Partage facile des rapports",
+    ],
+    color: {
+      bg: "bg-violet-100",
+      bgDark: "dark:bg-violet-900/30",
+      text: "text-violet-600",
+      textDark: "dark:text-violet-400",
     },
   },
 ];
