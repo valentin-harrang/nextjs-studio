@@ -25,6 +25,7 @@ import {
   Terminal,
   Search,
   Mail,
+  ToggleRight,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1469,6 +1470,79 @@ export const ressources: Ressource[] = [
       textDark: "dark:text-red-400",
     },
   },
+  {
+    slug: "unleash",
+    name: "Unleash",
+    category: "Feature Flags",
+    icon: ToggleRight,
+    description: "Plateforme open source de gestion de feature flags",
+    longDescription:
+      "Unleash est une plateforme open source de feature flags qui permet aux équipes de déployer du code en production de manière sécurisée avec des rollouts progressifs. Elle offre un contrôle granulaire sur les fonctionnalités, des stratégies de ciblage avancées, et peut être hébergée sur vos propres serveurs ou utilisée en SaaS.",
+    website: "https://www.getunleash.io",
+    npmPackage: "unleash-client",
+    useCases: [
+      "Déploiements progressifs (canary releases)",
+      "Tests A/B",
+      "Kill switches pour désactiver des fonctionnalités",
+      "Feature toggles pour le développement",
+      "Ciblage par utilisateur ou segment",
+      "Trunk-based development",
+    ],
+    features: [
+      "Open source et self-hosted possible",
+      "SDKs pour 15+ langages",
+      "Stratégies de rollout avancées",
+      "Ciblage par utilisateur, groupe ou pourcentage",
+      "API REST complète",
+      "Interface admin intuitive",
+      "Audit log",
+      "Environnements multiples",
+      "TypeScript support",
+    ],
+    color: {
+      bg: "bg-emerald-100",
+      bgDark: "dark:bg-emerald-900/30",
+      text: "text-emerald-600",
+      textDark: "dark:text-emerald-400",
+    },
+  },
+  {
+    slug: "posthog",
+    name: "PostHog",
+    category: "Feature Flags",
+    icon: ToggleRight,
+    description: "Plateforme d'analytics produit avec feature flags intégrés",
+    longDescription:
+      "PostHog est une plateforme all-in-one d'analytics produit qui combine feature flags, tests A/B, session replay, et analytics. Elle permet de prendre des décisions basées sur les données tout en contrôlant le déploiement des fonctionnalités. Open source et peut être auto-hébergée.",
+    website: "https://posthog.com",
+    npmPackage: "posthog-js",
+    useCases: [
+      "Feature flags avec analytics intégrés",
+      "Tests A/B avec mesure d'impact",
+      "Rollouts progressifs basés sur les métriques",
+      "Session replay pour debugging",
+      "Analytics produit",
+      "Funnels et rétention",
+    ],
+    features: [
+      "Feature flags avec targeting avancé",
+      "Tests A/B avec significance statistique",
+      "Session replay",
+      "Product analytics",
+      "Open source et self-hosted possible",
+      "SDKs pour tous les frameworks",
+      "API complète",
+      "Intégration avec data warehouses",
+      "TypeScript support",
+      "EU Cloud disponible (GDPR)",
+    ],
+    color: {
+      bg: "bg-blue-100",
+      bgDark: "dark:bg-blue-900/30",
+      text: "text-blue-600",
+      textDark: "dark:text-blue-400",
+    },
+  },
 ];
 
 export const categories = [
@@ -1490,6 +1564,7 @@ export const categories = [
   "Email",
   "Testing",
   "Monitoring",
+  "Feature Flags",
   "AI Agents",
   "AI SDK",
   "AI Chat",
