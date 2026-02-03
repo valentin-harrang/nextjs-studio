@@ -27,6 +27,7 @@ import {
   Mail,
   ToggleRight,
   Bug,
+  Smartphone,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1576,6 +1577,37 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-violet-900/30",
       text: "text-violet-600",
       textDark: "dark:text-violet-400",
+    },
+  },
+  {
+    slug: "prelude",
+    name: "Prelude",
+    category: "Authentication",
+    icon: Smartphone,
+    description: "API SMS et OTP pour vérification d'identité",
+    longDescription:
+      "Prelude est une plateforme d'API spécialisée dans l'envoi de messages SMS et de codes OTP (One-Time Password). Conçue pour accompagner les applications en croissance, elle offre une infrastructure robuste pour l'authentification par SMS, la vérification d'identité et la récupération de compte.",
+    website: "https://prelude.so",
+    useCases: [
+      "Vérification d'identité utilisateur par SMS",
+      "Authentification à deux facteurs (2FA)",
+      "Confirmation de transactions sensibles",
+      "Récupération de compte par SMS",
+      "Onboarding avec vérification de numéro",
+    ],
+    features: [
+      "API d'envoi de SMS simple",
+      "Génération et validation de codes OTP",
+      "Infrastructure haute disponibilité",
+      "Documentation développeur complète",
+      "Intégration rapide",
+      "Tableau de bord de suivi",
+    ],
+    color: {
+      bg: "bg-teal-100",
+      bgDark: "dark:bg-teal-900/30",
+      text: "text-teal-600",
+      textDark: "dark:text-teal-400",
     },
   },
 ];
