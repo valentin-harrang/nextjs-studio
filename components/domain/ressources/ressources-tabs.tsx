@@ -71,8 +71,10 @@ const categoryGroups = [
       "Development",
       "Testing",
       "Monitoring",
+      "Analytics",
       "Authentication",
       "Email",
+      "Feature Flags",
     ],
   },
 ];
