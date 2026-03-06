@@ -8,7 +8,7 @@ export function Footer() {
           <p>
             Créé avec <span className="text-red-500">❤️</span> par{" "}
             <Link
-              href="https://www.linkedin.com/in/valentin-harrang/"
+              href="https://valentin-harrang.fr"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-foreground hover:text-blue-600"

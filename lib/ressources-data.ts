@@ -28,6 +28,7 @@ import {
   ToggleRight,
   Bug,
   Smartphone,
+  BarChart3,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1610,6 +1611,42 @@ export const ressources: Ressource[] = [
       textDark: "dark:text-teal-400",
     },
   },
+  {
+    slug: "umami",
+    name: "Umami",
+    category: "Analytics",
+    icon: BarChart3,
+    description: "Analytics web open source, simple et respectueux de la vie privée",
+    longDescription:
+      "Umami est une solution d'analytics web open source qui offre une alternative simple et respectueuse de la vie privée à Google Analytics. Elle ne collecte aucune donnée personnelle, ne nécessite pas de bannière de cookies, et peut être auto-hébergée. Légère et rapide, elle fournit toutes les métriques essentielles sans compromettre la performance du site.",
+    website: "https://umami.is",
+    npmPackage: "@umami/next",
+    useCases: [
+      "Analytics web sans cookies",
+      "Suivi de trafic respectueux du RGPD",
+      "Tableaux de bord de métriques en temps réel",
+      "Analytics multi-sites",
+      "Suivi d'événements personnalisés",
+    ],
+    features: [
+      "Open source et self-hosted possible",
+      "Respectueux de la vie privée (pas de cookies)",
+      "Conforme RGPD par défaut",
+      "Interface simple et intuitive",
+      "Métriques en temps réel",
+      "Suivi d'événements personnalisés",
+      "Support multi-sites",
+      "API REST complète",
+      "Léger (script < 2 Ko)",
+      "Intégration Next.js native",
+    ],
+    color: {
+      bg: "bg-cyan-100",
+      bgDark: "dark:bg-cyan-900/30",
+      text: "text-cyan-600",
+      textDark: "dark:text-cyan-400",
+    },
+  },
 ];
 
 export const categories = [
@@ -1638,6 +1675,7 @@ export const categories = [
   "Local AI",
   "AI Code Generation",
   "AI Documentation",
+  "Analytics",
 ] as const;
 
 export function getRessourceBySlug(slug: string): Ressource | undefined {
