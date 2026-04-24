@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { ressources } from "@/lib/ressources-data";
-import type { Ressource } from "@/lib/ressources-data";
 
 interface RessourcesTabsProps {
   ressourcesByCategory: Array<{
@@ -72,6 +71,7 @@ const categoryGroups = [
       "Testing",
       "Monitoring",
       "Analytics",
+      "Security",
       "Authentication",
       "Email",
       "Feature Flags",

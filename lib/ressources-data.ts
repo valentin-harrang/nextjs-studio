@@ -1647,6 +1647,40 @@ export const ressources: Ressource[] = [
       textDark: "dark:text-cyan-400",
     },
   },
+  {
+    slug: "cloudflare-turnstile",
+    name: "Cloudflare Turnstile",
+    category: "Security",
+    icon: Shield,
+    description: "Alternative CAPTCHA gratuite et respectueuse de la vie privée",
+    longDescription:
+      "Cloudflare Turnstile est une alternative intelligente aux CAPTCHA traditionnels. Il vérifie que les visiteurs sont humains sans leur imposer de résoudre des puzzles visuels, offrant une expérience utilisateur fluide tout en protégeant les sites contre les bots et le spam. Gratuit et respectueux de la vie privée, il s'intègre facilement dans les formulaires et les pages web.",
+    website: "https://www.cloudflare.com/products/turnstile/",
+    useCases: [
+      "Protection de formulaires contre le spam",
+      "Vérification invisible des utilisateurs",
+      "Remplacement de reCAPTCHA/hCaptcha",
+      "Sécurisation des pages de login",
+      "Protection des endpoints d'API",
+    ],
+    features: [
+      "Vérification invisible (pas de puzzle)",
+      "Gratuit et illimité",
+      "Respectueux de la vie privée",
+      "Intégration simple (widget JavaScript)",
+      "Mode managed, non-interactive et invisible",
+      "Validation côté serveur via API",
+      "Compatible avec tous les frameworks",
+      "Conforme RGPD",
+      "Pas de dépendance à Cloudflare CDN",
+    ],
+    color: {
+      bg: "bg-orange-100",
+      bgDark: "dark:bg-orange-900/30",
+      text: "text-orange-600",
+      textDark: "dark:text-orange-400",
+    },
+  },
 ];
 
 export const categories = [
@@ -1676,6 +1710,7 @@ export const categories = [
   "AI Code Generation",
   "AI Documentation",
   "Analytics",
+  "Security",
 ] as const;
 
 export function getRessourceBySlug(slug: string): Ressource | undefined {
