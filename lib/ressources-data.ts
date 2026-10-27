@@ -29,6 +29,7 @@ import {
   Bug,
   Smartphone,
   BarChart3,
+  Megaphone,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1742,6 +1743,37 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-violet-900/30",
       text: "text-violet-600",
       textDark: "dark:text-violet-400",
+    },
+  },
+  {
+    slug: "marketing-skills",
+    name: "Marketing Skills",
+    category: "AI Skills",
+    icon: Megaphone,
+    description: "Plus de 40 skills marketing open source pour agents IA",
+    longDescription:
+      "Marketing Skills, créé par Corey Haines, est une bibliothèque open source (licence MIT) de plus de 40 skills marketing pour Claude Code, Codex, Cursor et tout agent compatible avec le standard Agent Skills. Elle couvre l'optimisation de conversion, le copywriting, le SEO, la publicité, l'analytics, la rétention et la vente. Le skill product-marketing sert de socle : chaque autre skill le lit d'abord pour connaître le produit, l'audience et le positionnement.",
+    website: "https://github.com/coreyhaines31/marketingskills",
+    useCases: [
+      "Optimiser la conversion d'une landing page ou d'un parcours d'inscription",
+      "Rédiger et relire le copy d'un site, d'e-mails ou de publicités",
+      "Auditer le SEO et la visibilité dans les moteurs de recherche IA",
+      "Mettre en place un tracking analytics et des tests A/B",
+      "Préparer un lancement, une stratégie de prix ou une analyse concurrentielle",
+    ],
+    features: [
+      "Plus de 40 skills : cro, copywriting, seo-audit, ai-seo, ads, pricing…",
+      "Skill product-marketing partagé comme contexte commun",
+      "Skills qui se référencent entre eux (copywriting, cro, ab-testing)",
+      "Installation en une commande : npx skills add coreyhaines31/marketingskills",
+      "Compatible Claude Code, Codex, Cursor et Windsurf",
+      "Open source et gratuit (licence MIT)",
+    ],
+    color: {
+      bg: "bg-rose-100",
+      bgDark: "dark:bg-rose-900/30",
+      text: "text-rose-600",
+      textDark: "dark:text-rose-400",
     },
   },
 ];
