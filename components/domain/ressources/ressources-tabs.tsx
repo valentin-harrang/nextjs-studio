@@ -36,6 +36,7 @@ const categoryGroups = [
       "Local AI",
       "AI Code Generation",
       "AI Documentation",
+      "AI Skills",
     ],
   },
   {

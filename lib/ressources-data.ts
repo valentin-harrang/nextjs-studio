@@ -1681,6 +1681,69 @@ export const ressources: Ressource[] = [
       textDark: "dark:text-orange-400",
     },
   },
+  {
+    slug: "opusjake-library",
+    name: "OpusJake Library",
+    category: "AI Skills",
+    icon: BookOpen,
+    description: "Bibliothèque gratuite de skills, prompts et guides pour Claude",
+    longDescription:
+      "OpusJake est une bibliothèque gratuite de ressources pour Claude et l'IA, tenue par Jake Schincariol. Elle regroupe des skills Claude prêts à installer, des prompts, des guides de connecteurs MCP et des playbooks pas à pas. Chaque ressource est pensée pour être copiée-collée et utilisée immédiatement, sans configuration complexe.",
+    website: "https://opusjake.ai/library",
+    useCases: [
+      "Découvrir de nouveaux skills Claude",
+      "Configurer des connecteurs Claude (PostHog, Firecrawl, Composio...)",
+      "Personnaliser Claude Code avec des mods",
+      "Apprendre à construire des agents IA",
+      "Vérifier la sécurité d'un skill avant installation",
+    ],
+    features: [
+      "Plus de 40 ressources gratuites",
+      "Skills Claude prêts à l'emploi",
+      "Guides d'installation de connecteurs",
+      "Mods pour Claude Code",
+      "Playbooks et prompts copiables",
+      "Newsletter et blog",
+    ],
+    color: {
+      bg: "bg-amber-100",
+      bgDark: "dark:bg-amber-900/30",
+      text: "text-amber-600",
+      textDark: "dark:text-amber-400",
+    },
+  },
+  {
+    slug: "jake-schincariol-skills",
+    name: "Jake Schincariol Skills",
+    category: "AI Skills",
+    icon: Sparkles,
+    description: "Packs open source de skills Claude par métier (GitHub)",
+    longDescription:
+      "Jake Schincariol publie sur GitHub des packs open source de skills Claude, chacun dédié à un métier ou un canal : rétro-ingénierie d'applications, Instagram, YouTube, LinkedIn, day trading ou validation d'une idée de business. Chaque pack contient une dizaine de skills complémentaires à installer dans Claude Code pour automatiser un workflow complet.",
+    website: "https://github.com/Jakeschincariol",
+    useCases: [
+      "Reconstruire et améliorer une application existante",
+      "Gérer un compte Instagram, YouTube ou LinkedIn",
+      "Tester une idée de business avant le lancement",
+      "Analyser des graphiques et des actualités de trading",
+      "S'inspirer pour écrire ses propres skills",
+    ],
+    features: [
+      "replica-skill : rétro-ingénierie et reconstruction d'apps",
+      "instagram-agent-skill : Reels, légendes, recherche virale",
+      "youtube-agent-skill : scripts, titres, miniatures, rétention",
+      "linkedin-agent-skill : posts, commentaires, score de profil",
+      "founder-skill : board, marketing, finance, panel consommateurs",
+      "day-trader-skill : scan de graphiques et backtesting",
+      "Open source et gratuit",
+    ],
+    color: {
+      bg: "bg-violet-100",
+      bgDark: "dark:bg-violet-900/30",
+      text: "text-violet-600",
+      textDark: "dark:text-violet-400",
+    },
+  },
 ];
 
 export const categories = [
@@ -1709,6 +1772,7 @@ export const categories = [
   "Local AI",
   "AI Code Generation",
   "AI Documentation",
+  "AI Skills",
   "Analytics",
   "Security",
 ] as const;
