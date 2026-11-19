@@ -838,6 +838,37 @@ export const ressources: Ressource[] = [
     },
   },
   {
+    slug: "hermes-agent",
+    name: "Hermes Agent",
+    category: "AI Agents",
+    icon: Bot,
+    description: "Agent IA autonome open source qui apprend de ses usages",
+    longDescription:
+      "Hermes Agent est un agent IA autonome open source (licence MIT) développé par Nous Research. Il crée ses propres skills à partir de l'expérience, les améliore à l'usage et garde une mémoire d'une session à l'autre. Il se pilote depuis plus de 15 messageries via une passerelle unique, se connecte à n'importe quel serveur MCP et exécute ses tâches en local, dans Docker, en SSH ou sur des backends cloud. Le site hermes-ai.net est une documentation communautaire en français, non officielle.",
+    website: "https://hermes-ai.net/fr/",
+    useCases: [
+      "Déléguer des tâches récurrentes à un agent autonome",
+      "Piloter un agent depuis Telegram, Slack, Discord ou WhatsApp",
+      "Planifier des automatisations avec livraison dans une messagerie",
+      "Brancher un agent sur ses serveurs MCP existants",
+    ],
+    features: [
+      "Skills créés et améliorés automatiquement, compatibles agentskills.io",
+      "Mémoire persistante entre les sessions",
+      "Plus de 15 messageries : Telegram, Discord, Slack, WhatsApp, Signal, e-mail…",
+      "Client MCP avec filtrage des outils",
+      "Cron intégré pour les automatisations",
+      "Six backends d'exécution : local, Docker, SSH, Daytona, Singularity, Modal",
+      "Linux, macOS et WSL2, open source (licence MIT)",
+    ],
+    color: {
+      bg: "bg-sky-100",
+      bgDark: "dark:bg-sky-900/30",
+      text: "text-sky-600",
+      textDark: "dark:text-sky-400",
+    },
+  },
+  {
     slug: "ai-sdk",
     name: "AI SDK",
     category: "AI SDK",
