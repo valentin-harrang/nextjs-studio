@@ -1432,6 +1432,38 @@ export const ressources: Ressource[] = [
     },
   },
   {
+    slug: "promptfoo",
+    name: "Promptfoo",
+    category: "Testing",
+    icon: CheckSquare,
+    description: "Tests et red teaming pour prompts, agents et RAG",
+    longDescription:
+      "Promptfoo est une CLI et une bibliothèque open source (licence MIT) pour évaluer et attaquer (red teaming) les applications basées sur des LLM. Les tests se décrivent dans une configuration déclarative, s'exécutent en local sans que les prompts quittent la machine et s'intègrent au CI/CD. Le projet fait désormais partie d'OpenAI et reste open source.",
+    website: "https://github.com/promptfoo/promptfoo",
+    npmPackage: "promptfoo",
+    useCases: [
+      "Tester ses prompts et ses agents avec des évaluations automatisées",
+      "Comparer GPT, Claude, Gemini ou des modèles locaux côte à côte",
+      "Scanner une app LLM à la recherche de vulnérabilités (red teaming)",
+      "Bloquer une régression de prompt dans la CI",
+    ],
+    features: [
+      "Configuration déclarative, CLI et bibliothèque",
+      "Évaluations exécutées 100 % en local",
+      "Fournisseurs multiples : OpenAI, Anthropic, Azure, Bedrock, Ollama…",
+      "Rapports de vulnérabilités de sécurité (red teaming)",
+      "Analyse des pull requests pour les risques liés aux LLM",
+      "Visualiseur web des résultats, live reload et cache",
+      "Installation via npm, brew ou pip, open source (licence MIT)",
+    ],
+    color: {
+      bg: "bg-rose-100",
+      bgDark: "dark:bg-rose-900/30",
+      text: "text-rose-600",
+      textDark: "dark:text-rose-400",
+    },
+  },
+  {
     slug: "datadog",
     name: "Datadog",
     category: "Monitoring",
