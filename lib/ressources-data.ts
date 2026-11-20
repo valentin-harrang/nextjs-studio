@@ -1839,6 +1839,37 @@ export const ressources: Ressource[] = [
       textDark: "dark:text-rose-400",
     },
   },
+  {
+    slug: "cloudflare-security-audit-skill",
+    name: "Cloudflare Security Audit Skill",
+    category: "AI Skills",
+    icon: Shield,
+    description: "Skill d'audit de sécurité multi-agents publié par Cloudflare",
+    longDescription:
+      "Security Audit Skill est un skill open source (licence MIT) de Cloudflare qui transforme un agent de code en auditeur de sécurité. Il orchestre des agents isolés en six phases : reconnaissance, recherche guidée par la couverture, validation des candidats, sortie structurée, vérification indépendante et rapport. Chaque faille trouvée est contre-vérifiée par un agent qui ne l'a pas trouvée, et les résultats sont écrits en JSON validé par un schéma. C'est le point de départ du système de détection de vulnérabilités utilisé en interne chez Cloudflare.",
+    website: "https://github.com/cloudflare/security-audit-skill",
+    useCases: [
+      "Auditer la sécurité d'un dépôt de code avant une mise en production",
+      "Rechercher des vulnérabilités dans un dossier précis (./src, une API)",
+      "Revalider les failles d'un audit précédent après des modifications",
+      "Produire un rapport de sécurité exploitable par une équipe ou une CI",
+    ],
+    features: [
+      "Six phases : reconnaissance, recherche, validation, sortie, vérification, rapport",
+      "Validation adverse : un agent neuf tente de réfuter chaque faille",
+      "Verdicts distincts : confirmed, needs_validation, rejected",
+      "Classes d'attaque dédiées : web, auth, LLM, supply chain, cloud, mobile",
+      "Exécutions cumulatives qui ciblent les zones non couvertes",
+      "Installation : npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit",
+      "Open source et gratuit (licence MIT)",
+    ],
+    color: {
+      bg: "bg-orange-100",
+      bgDark: "dark:bg-orange-900/30",
+      text: "text-orange-600",
+      textDark: "dark:text-orange-400",
+    },
+  },
 ];
 
 export const categories = [
