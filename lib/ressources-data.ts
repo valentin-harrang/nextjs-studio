@@ -31,6 +31,7 @@ import {
   BarChart3,
   Megaphone,
   Workflow,
+  FolderTree,
 } from "lucide-react";
 
 export interface Ressource {
@@ -899,6 +900,39 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-pink-900/30",
       text: "text-pink-600",
       textDark: "dark:text-pink-400",
+    },
+  },
+  {
+    slug: "eve",
+    name: "eve",
+    category: "AI Agents",
+    icon: FolderTree,
+    description: "Framework TypeScript open source de Vercel pour agents IA durables",
+    longDescription:
+      "eve est un framework open source (licence Apache 2.0) publié par Vercel pour construire et exécuter des agents IA en TypeScript. Un agent y est un dossier de fichiers dont l'emplacement fixe le rôle : instructions.md pour le prompt système, tools/ pour les outils typés, skills/ pour les procédures en Markdown, ainsi que channels/, schedules/ et subagents/. Chaque session tourne comme un workflow durable : elle reprend au dernier point de contrôle après un plantage ou un redéploiement, et attend une approbation humaine sans consommer de calcul. Le code lancé par l'agent s'exécute dans un bac à sable isolé, et le framework tourne sur Vercel (Functions, Workflows, AI Gateway) ou comme service Node sur sa propre infrastructure.",
+    website: "https://vercel.com/eve",
+    npmPackage: "eve",
+    useCases: [
+      "Déployer un agent interne qui répond dans les fils Slack ou Microsoft Teams",
+      "Programmer des tâches récurrentes par cron (récapitulatif quotidien ou hebdomadaire)",
+      "Faire valider par une personne les actions sensibles : remboursement, envoi, publication",
+      "Confier des tâches à des sous-agents spécialisés, chacun avec ses outils et son bac à sable",
+      "Relier l'interface d'une app Next.js, Nuxt, SvelteKit ou TanStack Start à un agent",
+    ],
+    features: [
+      "Agent défini par fichiers : instructions.md, tools/, skills/, channels/, schedules/, subagents/",
+      "Sessions durables (Workflow SDK) : reprise au dernier point de contrôle après un plantage ou un redéploiement",
+      "Approbation humaine réglable par outil, sans calcul consommé pendant l'attente",
+      "Canaux : HTTP, Slack, Discord, Microsoft Teams, Telegram, GitHub, Linear, MCP, A2A",
+      "Bac à sable : Vercel Sandbox sur Vercel, Docker s'il est disponible, just-bash en développement",
+      "Installation : npx eve@latest init my-agent (Node.js 24 ou plus)",
+      "Open source et gratuit (licence Apache 2.0), hébergement Vercel facturé à l'usage",
+    ],
+    color: {
+      bg: "bg-slate-100",
+      bgDark: "dark:bg-slate-900/30",
+      text: "text-slate-600",
+      textDark: "dark:text-slate-400",
     },
   },
   {
