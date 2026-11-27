@@ -33,6 +33,7 @@ import {
   Workflow,
   FolderTree,
   Users,
+  GitBranch,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1319,6 +1320,38 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-indigo-900/30",
       text: "text-indigo-600",
       textDark: "dark:text-indigo-400",
+    },
+  },
+  {
+    slug: "conductor",
+    name: "Conductor",
+    category: "AI Code Generation",
+    icon: GitBranch,
+    description: "Application Mac pour lancer plusieurs agents de code en parallèle",
+    longDescription:
+      "Conductor est une application macOS qui fait travailler en parallèle des agents de code (Claude Code, Codex, Cursor et OpenCode), chacun dans un espace de travail isolé. Chaque espace repose sur un git worktree avec sa branche, ses fichiers et son terminal : on relit le diff, on commente des lignes pour l'agent, puis on ouvre la pull request et on archive l'espace. En local, cette isolation sert au développement et pas à la sécurité : les agents tournent sans sandbox, avec les droits de l'utilisateur. Créée par la start-up Melty Labs, l'application est aujourd'hui présentée comme « Conductor from Meta », et ses espaces Conductor Cloud (sandboxes distantes partagées en équipe) sont réservés aux formules Pro, Teams et Enterprise.",
+    website: "https://www.conductor.build/",
+    useCases: [
+      "Répartir plusieurs tickets GitHub ou Linear entre des agents, un espace de travail par ticket",
+      "Faire relire par un second agent le diff produit par un premier avant d'ouvrir la PR",
+      "Tester une piste risquée sur une branche isolée, puis l'archiver ou la fusionner",
+      "Lancer le serveur de dev de chaque branche en parallèle sur des ports distincts",
+      "Faire tourner Claude Code et Codex avec ses abonnements existants (Claude Pro ou Max, OpenAI)",
+    ],
+    features: [
+      "Un git worktree et une branche par espace de travail, avec terminal et diff dédiés",
+      "Claude Code, Codex et OpenCode intégrés, Cursor via une clé API Cursor",
+      "Visionneuse de diff : commentaires de lignes renvoyés à l'agent, puis création de la PR",
+      "Checkpoints : retour à un tour précédent, code annulé et messages supprimés",
+      "Scripts d'installation et d'archivage, actions Run avec dix ports par espace local",
+      "Installation : télécharger le .dmg (Mac Apple silicon ou Intel) et le glisser dans Applications",
+      "Application gratuite, usage des modèles payé via l'abonnement ou la clé API du fournisseur",
+    ],
+    color: {
+      bg: "bg-stone-100",
+      bgDark: "dark:bg-stone-900/30",
+      text: "text-stone-600",
+      textDark: "dark:text-stone-400",
     },
   },
   {
