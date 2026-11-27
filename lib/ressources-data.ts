@@ -30,6 +30,7 @@ import {
   Smartphone,
   BarChart3,
   Megaphone,
+  Workflow,
 } from "lucide-react";
 
 export interface Ressource {
@@ -866,6 +867,38 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-sky-900/30",
       text: "text-sky-600",
       textDark: "dark:text-sky-400",
+    },
+  },
+  {
+    slug: "gumloop",
+    name: "Gumloop",
+    category: "AI Agents",
+    icon: Workflow,
+    description: "Plateforme pour créer des agents IA d'équipe en langage naturel",
+    longDescription:
+      "Gumloop est une plateforme d'agents IA éditée par AgentHub Inc., start-up passée par Y Combinator. On décrit une tâche en langage naturel pour obtenir un agent relié aux applications de l'entreprise (Slack, Gmail, Salesforce, HubSpot, Notion, GitHub…), que l'équipe utilise depuis l'interface Gumloop, Slack, Microsoft Teams ou par e-mail, ou qui se lance sur un déclencheur. Les agents s'appuient sur des skills partagés, une base de connaissances d'entreprise (Brain), un navigateur cloud et le modèle de son choix. Connue à l'origine pour ses workflows en glisser-déposer, aujourd'hui marqués « Legacy », la plateforme est désormais centrée sur les agents.",
+    website: "https://www.gumloop.com",
+    useCases: [
+      "Qualifier et enrichir des leads, puis mettre à jour Salesforce ou HubSpot à partir de Slack et des transcriptions d'appels",
+      "Préparer un brief avant chaque rendez-vous à partir du CRM, des e-mails, de Slack et du web",
+      "Trier les tickets de support et envoyer un récapitulatif hebdomadaire des problèmes récurrents",
+      "Programmer un rapport récurrent ou une veille concurrentielle qui tourne sans intervention",
+      "Piloter ses agents depuis Claude Code, Cursor ou un script via le serveur MCP, la CLI ou le SDK Python",
+    ],
+    features: [
+      "Agents créés en langage naturel et partagés en équipe, avec navigateur cloud intégré",
+      "Déclencheurs : planification (récurrente ou ponctuelle), événements d'applications et webhooks",
+      "Skills réutilisables (instructions, modèles, scripts), synchronisables avec un dépôt GitHub",
+      "Choix du modèle (Anthropic, OpenAI, Google, DeepSeek…), routeur Auto et clés API personnelles",
+      "API REST, SDK Python, serveur MCP et CLI (macOS, Linux) : curl -fsSL https://gumloop.com/cli/install.sh | sh",
+      "SOC 2 Type II et HIPAA selon l'éditeur, SSO/SCIM et journaux d'audit avec l'offre Enterprise",
+      "Essai gratuit de 14 jours, puis abonnement Pro facturé en crédits ou Enterprise sur devis",
+    ],
+    color: {
+      bg: "bg-pink-100",
+      bgDark: "dark:bg-pink-900/30",
+      text: "text-pink-600",
+      textDark: "dark:text-pink-400",
     },
   },
   {
