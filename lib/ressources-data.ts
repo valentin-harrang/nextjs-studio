@@ -32,6 +32,7 @@ import {
   Megaphone,
   Workflow,
   FolderTree,
+  Users,
 } from "lucide-react";
 
 export interface Ressource {
@@ -1935,6 +1936,38 @@ export const ressources: Ressource[] = [
       bgDark: "dark:bg-orange-900/30",
       text: "text-orange-600",
       textDark: "dark:text-orange-400",
+    },
+  },
+  {
+    slug: "bmad-method",
+    name: "BMAD Method",
+    category: "AI Skills",
+    icon: Users,
+    description: "Méthode agile de développement piloté par l'IA, livrée en skills",
+    longDescription:
+      "BMAD Method (Breakthrough Method for Agile AI-Driven Development) est une méthode open source et gratuite (licence MIT), publiée par BMad Code, pour développer avec un assistant de code IA, de l'idée au code relu. Elle s'installe sous forme de skills dans Claude Code, Cursor ou Codex et apporte des agents spécialisés par rôle, dont un analyste, un chef de produit, un UX designer, un architecte et un développeur. La planification s'adapte à la taille du travail : un petit changement passe directement à l'implémentation, un epic reçoit une spécification et des stories, un projet de plusieurs epics y ajoute des décisions partagées de produit, d'UX et d'architecture. Ces décisions sont écrites dans des documents du projet et servent de contexte aux étapes suivantes, au lieu d'être réexpliquées à chaque conversation.",
+    website: "https://github.com/bmad-code-org/BMAD-METHOD",
+    useCases: [
+      "Cadrer une idée de produit avec un agent analyste et un agent chef de produit avant d'écrire du code",
+      "Rédiger un PRD, une architecture et des stories pour un projet découpé en epics",
+      "Implémenter une fonctionnalité ou une correction de bug de bout en bout avec bmad-build",
+      "Reprendre une base de code existante en établissant d'abord son contexte vérifié",
+      "Garder les décisions produit et techniques d'une session à l'autre avec un assistant de code",
+    ],
+    features: [
+      "Agents par rôle, dont analyste, chef de produit, UX designer, architecte et développeur",
+      "Planification proportionnée : implémentation directe pour un petit changement, spécification et stories pour un epic",
+      "Skill bmad-build : planifie, code, relit et vérifie un changement de bout en bout",
+      "Party mode : table ronde entre plusieurs agents sur un même sujet",
+      "Modules officiels : Builder, Test Architect, Creative Intelligence Suite, Game Dev Studio, Loop",
+      "Installation (version stable) : npx bmad-method install",
+      "Open source et gratuit (licence MIT)",
+    ],
+    color: {
+      bg: "bg-indigo-100",
+      bgDark: "dark:bg-indigo-900/30",
+      text: "text-indigo-600",
+      textDark: "dark:text-indigo-400",
     },
   },
 ];
